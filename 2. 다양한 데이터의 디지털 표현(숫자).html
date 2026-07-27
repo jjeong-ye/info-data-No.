@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>진법 변환 마스터 - 중학교 정보</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI','맑은 고딕',sans-serif;background:linear-gradient(135deg,#1a1a2e 0%,#16213e 50%,#0f3460 100%);min-height:100vh;padding:20px;color:#333}
+.container{max-width:950px;margin:0 auto}
+h1{text-align:center;color:white;font-size:2.2em;margin-bottom:5px;text-shadow:2px 2px 4px rgba(0,0,0,0.5)}
+.subtitle{text-align:center;color:rgba(255,255,255,0.8);margin-bottom:30px;font-size:1.05em}
+.tab-nav{display:flex;gap:5px;margin-bottom:25px;background:rgba(255,255,255,0.1);border-radius:15px;padding:5px;flex-wrap:wrap;justify-content:center}
+.tab-btn{padding:12px 18px;border:none;border-radius:12px;font-size:0.9em;font-weight:bold;cursor:pointer;background:transparent;color:rgba(255,255,255,0.7);transition:all 0.3s}
+.tab-btn:hover{background:rgba(255,255,255,0.15);color:white}
+.tab-btn.active{background:white;color:#1a1a2e;box-shadow:0 4px 15px rgba(0,0,0,0.2)}
+.tab-content{display:none}.tab-content.active{display:block;animation:fadeIn 0.4s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.card{background:white;border-radius:20px;padding:30px;margin-bottom:25px;box-shadow:0 10px 40px rgba(0,0,0,0.3)}
+.card h2{color:#1a1a2e;margin-bottom:20px;font-size:1.4em;display:flex;align-items:center;gap:10px}
+.concept-box{background:#f0f4ff;border-left:4px solid #667eea;padding:15px 20px;border-radius:0 10px 10px 0;margin-bottom:20px;line-height:1.8}
+.concept-box p{color:#444;font-size:0.95em;margin-bottom:5px}
+.concept-box.green{border-left-color:#11998e;background:#e8faf5}
+.concept-box.pink{border-left-color:#f5576c;background:#fff0f3}
+.highlight{background:#fff3cd;padding:2px 6px;border-radius:4px;font-weight:bold;color:#856404}
+.btn{padding:12px 25px;border:none;border-radius:10px;font-size:1em;font-weight:bold;cursor:pointer;transition:transform 0.2s,box-shadow 0.2s}
+.btn:hover{transform:translateY(-2px);box-shadow:0 5px 15px rgba(0,0,0,0.2)}
+.btn:active{transform:translateY(0)}
+.btn-primary{background:linear-gradient(135deg,#667eea,#764ba2);color:white}
+.btn-success{background:linear-gradient(135deg,#11998e,#38ef7d);color:white}
+.btn-warning{background:linear-gradient(135deg,#f093fb,#f5576c);color:white}
+.btn-info{background:linear-gradient(135deg,#4facfe,#00f2fe);color:white}
+.btn-sm{padding:8px 16px;font-size:0.9em}
+.btn-group{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:15px 0}
+</style>
+</head>
+<body>
+<div class="container">
+<h1>🔢 진법 변환 마스터</h1>
+<p class="subtitle">컴퓨터의 언어, 이진수를 정복하자!</p>
+<div class="tab-nav">
+<button class="tab-btn active" onclick="showTab('magic',this)">🎩 마술쇼</button>
+<button class="tab-btn" onclick="showTab('game',this)">🎮 카드 게임</button>
+<button class="tab-btn" onclick="showTab('convert',this)">📖 진법 변환</button>
+<button class="tab-btn" onclick="showTab('quiz',this)">✏️ 도전 퀴즈</button>
+<button class="tab-btn" onclick="showTab('supplement',this)">📚 보충 학습</button>
+<button class="tab-btn" onclick="showTab('advanced',this)">🚀 심화 학습</button>
+</div>
+<!-- ===== 마술쇼 ===== -->
+<div class="tab-content active" id="tab-magic">
+<div class="card">
+<h2>🎩 마술쇼</h2>
+<div class="concept-box pink">
+<p><strong>🪄 마술사가 여러분의 숫자를 맞춰볼게요!</strong></p>
+<p>① 마음속으로 <span class="highlight">0부터 15</span> 까지의 숫자 하나를 고르세요.</p>
+<p>② 카드를 한 장씩 보여줄게요. 내가 고른 숫자가 <span class="highlight">있으면 "있다"</span>, <span class="highlight">없으면 "없다"</span>를 선택하세요.</p>
+<p>③ 4장의 카드를 모두 확인하면 마술사가 숫자를 맞춰줄게요! 🎯</p>
+</div>
+<div id="magicCardArea" style="margin:20px 0;">
+<div id="magicCurrentCard" style="background:#f8f9ff;border:3px solid #667eea;border-radius:15px;padding:25px;text-align:center;max-width:350px;margin:0 auto;">
+<div id="magicCardTitle" style="font-weight:bold;color:#667eea;font-size:1.3em;margin-bottom:15px;">첫 번째 카드</div>
+<div id="magicCardNumbers" style="font-size:1.3em;color:#333;line-height:2;"></div>
+<div style="margin-top:18px;display:flex;gap:10px;justify-content:center;">
+<button class="btn btn-primary" onclick="answerMagic(1)">있다 ⭕</button>
+<button class="btn btn-info" onclick="answerMagic(0)">없다 ❌</button>
+</div>
+</div>
+<div style="text-align:center;margin-top:12px;color:#888;" id="magicProgress">카드 1 / 4</div>
+</div>
+<div id="magicResult" style="display:none;margin-top:20px;"></div>
+<div class="btn-group"><button class="btn btn-info" onclick="resetMagic()">다시 하기 🔄</button></div>
+</div>
+</div>
+<!-- ===== 카드 게임 ===== -->
+<div class="tab-content" id="tab-game">
+<div class="card">
+<h2>🎮 이진수 카드 게임</h2>
+<div class="concept-box">
+<p><strong>🃏 게임 방법:</strong></p>
+<p>• 카드를 <span class="highlight">클릭하면 켜짐(1)</span>, 다시 클릭하면 <span class="highlight">꺼짐(0)</span>!</p>
+<p>• 각 카드에는 점(●)으로 자릿값이 표시되어 있어요. 점의 개수 = 그 카드의 값!</p>
+<p>• 켜진 카드의 값을 모두 더하면 십진수가 됩니다.</p>
+<p>🎯 아래 목표 숫자와 같아지도록 카드를 켜보세요!</p>
+</div>
+<div style="text-align:center;padding:20px;margin:15px 0;background:linear-gradient(135deg,#ff6b6b,#ee5a24);border-radius:15px;color:white;">
+<div style="font-size:1em;opacity:0.9;">이 숫자를 만들어 보세요!</div>
+<div style="font-size:3em;font-weight:bold;" id="gameTarget">0</div>
+</div>
+<div id="gameBoard" style="display:flex;justify-content:center;gap:12px;flex-wrap:wrap;margin:20px 0;"></div>
+<div id="gameSum" style="text-align:center;font-size:1.3em;font-weight:bold;color:#667eea;margin:15px 0;padding:15px;background:#f0f4ff;border-radius:12px;">현재 합: <strong>0</strong> (이진수: <strong>00000</strong>)</div>
+<div id="gameMessage" style="text-align:center;padding:12px;border-radius:10px;font-weight:bold;margin-top:10px;display:none;"></div>
+<div class="btn-group"><button class="btn btn-warning" onclick="submitGame()">선택 완료 ✅</button></div>
+</div>
+</div>
+<!-- ===== 진법 변환 (하위 메뉴) ===== -->
+<div class="tab-content" id="tab-convert">
+<div class="card">
+<h2>📖 진법 변환</h2>
+<div class="concept-box"><p>아래에서 학습할 내용을 선택하세요!</p></div>
+<div class="btn-group">
+<button class="btn btn-primary" onclick="showSubTab('conv-dec2bin')">십진수 → 이진수</button>
+<button class="btn btn-success" onclick="showSubTab('conv-bin2dec')">이진수 → 십진수</button>
+<button class="btn btn-warning" onclick="showSubTab('conv-trick')">⚡ 1-2-4-8 꿀팁</button>
+</div>
+</div>
+<!-- 십진수→이진수 -->
+<div class="sub-content" id="sub-conv-dec2bin" style="display:none;">
+<div class="card">
+<h2>📖 십진수 → 이진수 (2로 나누기)</h2>
+<div class="concept-box">
+<p><strong>변환 방법:</strong></p>
+<p>① 십진수를 2로 나누어 몫은 아래에, 나머지는 오른쪽에 적는다.</p>
+<p>② 몫이 0이 될 때까지 2로 나누어 나머지를 구한다.</p>
+<p>③ 몫이 0이 되면 나머지를 <span class="highlight">아래에서 위의 방향으로</span> 읽는다.</p>
+</div>
+<div style="background:#f8f9ff;border:2px solid #e0e7ff;border-radius:15px;padding:20px;margin-bottom:20px;">
+<p style="font-weight:bold;color:#555;margin-bottom:12px;">📌 예시: 25를 이진수로 변환</p>
+<table style="margin:0 auto;border-collapse:collapse;text-align:center;">
+<tr><td style="padding:4px 12px;color:#667eea;font-weight:bold;">2</td><td style="padding:4px 12px;border-bottom:2px solid #667eea;font-weight:bold;">25</td><td style="padding:4px 20px;"></td><td style="padding:4px 12px;color:#e91e63;font-weight:bold;">나머지</td></tr>
+<tr><td style="padding:4px 12px;color:#667eea;font-weight:bold;">2</td><td style="padding:4px 12px;border-bottom:2px solid #667eea;">12</td><td style="padding:4px 20px;">···</td><td style="padding:4px 12px;color:#e91e63;font-weight:bold;font-size:1.2em;">1</td></tr>
+<tr><td style="padding:4px 12px;color:#667eea;font-weight:bold;">2</td><td style="padding:4px 12px;border-bottom:2px solid #667eea;">6</td><td style="padding:4px 20px;">···</td><td style="padding:4px 12px;color:#e91e63;font-weight:bold;font-size:1.2em;">0</td></tr>
+<tr><td style="padding:4px 12px;color:#667eea;font-weight:bold;">2</td><td style="padding:4px 12px;border-bottom:2px solid #667eea;">3</td><td style="padding:4px 20px;">···</td><td style="padding:4px 12px;color:#e91e63;font-weight:bold;font-size:1.2em;">0</td></tr>
+<tr><td style="padding:4px 12px;color:#667eea;font-weight:bold;">2</td><td style="padding:4px 12px;border-bottom:2px solid #667eea;">1</td><td style="padding:4px 20px;">···</td><td style="padding:4px 12px;color:#e91e63;font-weight:bold;font-size:1.2em;">1</td></tr>
+<tr><td></td><td style="padding:4px 12px;">0</td><td style="padding:4px 20px;">···</td><td style="padding:4px 12px;color:#e91e63;font-weight:bold;font-size:1.2em;">1</td></tr>
+</table>
+<div style="margin-top:15px;font-size:0.9em;color:#555;line-height:1.8;">
+<p>• 25를 2로 나누어 몫과 나머지를 차례로 적는다.</p>
+<p>• 2로 나눈 몫이 0이 되면 나머지들을 아래서 위로 읽는다.</p>
+<p>• 이러한 변환 과정에 따라 십진수 25를 이진수로 변환하면 <strong style="color:#667eea;">11001₍₂₎</strong>이 된다.</p>
+</div>
+</div>
+<h3 style="margin-bottom:10px;color:#1a1a2e;">✏️ 직접 풀어보기</h3>
+<div style="display:flex;gap:15px;align-items:center;margin-bottom:20px;flex-wrap:wrap;">
+<label style="font-weight:bold;color:#555;min-width:80px;">십진수:</label>
+<input type="number" id="decInput" placeholder="예: 13" min="1" max="255" style="flex:1;padding:12px 18px;border:2px solid #ddd;border-radius:10px;font-size:1.2em;min-width:150px;">
+<button class="btn btn-primary" onclick="startDecPractice()">연습 시작 ✏️</button>
+</div>
+<div id="decPracticeArea" style="display:none;"></div>
+</div>
+</div>
+<!-- 이진수→십진수 -->
+<div class="sub-content" id="sub-conv-bin2dec" style="display:none;">
+<div class="card">
+<h2>📖 이진수 → 십진수 (자릿값 곱하기)</h2>
+<div class="concept-box">
+<p>컴퓨팅 시스템에서 디지털 데이터를 표현하는 방식인 이진수를 십진수로 변환하기 위해서는 먼저 <span class="highlight">자릿값</span>과 표현 원리를 이해해야 합니다.</p>
+<p>*이진수를 거듭제곱 형식으로 나타낸 전개식을 사용합니다.</p>
+</div>
+
+<!-- 십진수 자릿값 원리 -->
+<div style="background:#f8f9ff;border:2px solid #e0e7ff;border-radius:15px;padding:20px;margin-bottom:20px;">
+<p style="font-weight:bold;color:#555;margin-bottom:10px;">📌 자릿값의 원리 (십진수 예시)</p>
+<div style="font-family:monospace;font-size:1em;line-height:2;padding-left:20px;color:#333;">
+<p>249 = 200 + 40 + 9</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= 2 × 100 + 4 × 10 + 9 × 1</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= 2 × 10² + 4 × 10¹ + 9 × 10⁰</p>
+</div>
+<div style="margin-top:10px;font-size:0.9em;color:#555;line-height:1.8;">
+<p style="color:#e91e63;font-weight:bold;">*모든 수의 0제곱은 1</p>
+<p>• 가장 오른쪽은 10의 0제곱, 즉 <strong>1의 자리</strong>이다.</p>
+<p>• 십진수이므로 왼쪽으로 한 자리 올라갈 때마다 <strong>10배씩</strong> 증가한다.</p>
+<p>• 가장 오른쪽부터 자릿값이 10의 0제곱 자리, 10의 1제곱 자리, 10의 2제곱 자리, 10의 3제곱 자리, ...이다.</p>
+<p>• 각 자리의 십진수와 각 자리의 자릿값을 곱하여 더한다.</p>
+</div>
+</div>
+
+<!-- 이진수 변환 원리 -->
+<div class="concept-box green" style="margin-bottom:20px;">
+<p>십진수의 자릿값과 표현 원리를 바탕으로 이진수의 자릿값을 구하여 이진수를 십진수로 변환할 수 있다.</p>
+</div>
+
+<div style="background:#f8f9ff;border:2px solid #e0e7ff;border-radius:15px;padding:20px;margin-bottom:20px;">
+<p style="font-weight:bold;color:#555;margin-bottom:12px;">📌 예시: 1101₍₂₎을 십진수로 변환</p>
+<div style="font-family:monospace;font-size:1em;line-height:2.2;padding-left:20px;color:#333;">
+<p>1101₍₂₎ = <span style="color:#e91e63;font-weight:bold;">1</span> × 2³ + <span style="color:#e91e63;font-weight:bold;">1</span> × 2² + <span style="color:#e91e63;font-weight:bold;">0</span> × 2¹ + <span style="color:#e91e63;font-weight:bold;">1</span> × 2⁰</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= 1 × 8 + 1 × 4 + 0 × 2 + 1 × 1</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= 8 + 4 + 0 + 1</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= <strong>13</strong></p>
+</div>
+<div style="margin-top:15px;font-size:0.9em;color:#555;line-height:1.8;">
+<p>• 가장 오른쪽은 2의 0제곱, 즉 <strong>1의 자리</strong>이다.</p>
+<p>• 이진수이므로 왼쪽으로 한 자리 올라갈 때마다 <strong>2배씩</strong> 증가시킨다.</p>
+<p>• 가장 오른쪽부터 자릿값이 2의 0제곱 자리, 2의 1제곱 자리, 2의 2제곱 자리, 2의 3제곱 자리, ...로 이진수의 자릿값을 증가시키며 표현한다.</p>
+<p>• 각 자리의 이진수와 각 자리의 자릿값을 곱하여 더한다.</p>
+<p>• 변환 과정에 따라 1101₍₂₎을 십진수로 변환하면 <strong>13</strong>이 된다.</p>
+</div>
+</div>
+<h3 style="margin-bottom:10px;color:#1a1a2e;">✏️ 직접 풀어보기</h3>
+<div style="display:flex;gap:15px;align-items:center;margin-bottom:20px;flex-wrap:wrap;">
+<label style="font-weight:bold;color:#555;min-width:80px;">이진수:</label>
+<input type="text" id="binInput" placeholder="예: 1101" maxlength="8" style="flex:1;padding:12px 18px;border:2px solid #ddd;border-radius:10px;font-size:1.2em;min-width:150px;">
+<button class="btn btn-success" onclick="startBinPractice()">연습 시작 ✏️</button>
+</div>
+<div id="binPracticeArea" style="display:none;"></div>
+</div>
+</div>
+<!-- 1-2-4-8 꿀팁 -->
+<div class="sub-content" id="sub-conv-trick" style="display:none;">
+<div class="card">
+<h2>⚡ 1-2-4-8-16... 꿀팁!</h2>
+<div class="concept-box">
+<p>이진수의 각 자리는 오른쪽부터 <span class="highlight">1, 2, 4, 8, 16, 32, 64, 128</span> 값을 가져요.</p>
+<p>이 숫자들만 외우면 변환이 순식간!</p>
+</div>
+<div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:20px 0;">
+<div style="width:70px;height:90px;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(135deg,#f093fb,#f5576c);color:white;font-weight:bold;box-shadow:0 4px 15px rgba(0,0,0,0.15);"><div style="font-size:1.8em;">128</div><div style="font-size:0.7em;opacity:0.8;">2⁷</div></div>
+<div style="width:70px;height:90px;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(135deg,#f093fb,#f5576c);color:white;font-weight:bold;box-shadow:0 4px 15px rgba(0,0,0,0.15);"><div style="font-size:1.8em;">64</div><div style="font-size:0.7em;opacity:0.8;">2⁶</div></div>
+<div style="width:70px;height:90px;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(135deg,#f093fb,#f5576c);color:white;font-weight:bold;box-shadow:0 4px 15px rgba(0,0,0,0.15);"><div style="font-size:1.8em;">32</div><div style="font-size:0.7em;opacity:0.8;">2⁵</div></div>
+<div style="width:70px;height:90px;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(135deg,#f093fb,#f5576c);color:white;font-weight:bold;box-shadow:0 4px 15px rgba(0,0,0,0.15);"><div style="font-size:1.8em;">16</div><div style="font-size:0.7em;opacity:0.8;">2⁴</div></div>
+<div style="width:70px;height:90px;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(135deg,#f093fb,#f5576c);color:white;font-weight:bold;box-shadow:0 4px 15px rgba(0,0,0,0.15);"><div style="font-size:1.8em;">8</div><div style="font-size:0.7em;opacity:0.8;">2³</div></div>
+<div style="width:70px;height:90px;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(135deg,#f093fb,#f5576c);color:white;font-weight:bold;box-shadow:0 4px 15px rgba(0,0,0,0.15);"><div style="font-size:1.8em;">4</div><div style="font-size:0.7em;opacity:0.8;">2²</div></div>
+<div style="width:70px;height:90px;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(135deg,#f093fb,#f5576c);color:white;font-weight:bold;box-shadow:0 4px 15px rgba(0,0,0,0.15);"><div style="font-size:1.8em;">2</div><div style="font-size:0.7em;opacity:0.8;">2¹</div></div>
+<div style="width:70px;height:90px;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(135deg,#f093fb,#f5576c);color:white;font-weight:bold;box-shadow:0 4px 15px rgba(0,0,0,0.15);"><div style="font-size:1.8em;">1</div><div style="font-size:0.7em;opacity:0.8;">2⁰</div></div>
+</div>
+<div class="concept-box green">
+<p><strong>💡 십진수 → 이진수:</strong> 큰 자릿값부터 빼면서 1, 못 빼면 0!</p>
+<p><strong>💡 이진수 → 십진수:</strong> 1이 있는 자리의 자릿값만 쏙쏙 더하기!</p>
+</div>
+<h3 style="margin:20px 0 10px;color:#1a1a2e;">🧪 십진수 → 이진수 직접 해보기</h3>
+<div style="display:flex;gap:15px;align-items:center;margin-bottom:20px;flex-wrap:wrap;">
+<label style="font-weight:bold;color:#555;min-width:80px;">십진수:</label>
+<input type="number" id="trickDecInput" placeholder="예: 25" min="1" max="255" style="flex:1;padding:12px 18px;border:2px solid #ddd;border-radius:10px;font-size:1.2em;min-width:150px;">
+<button class="btn btn-warning" onclick="startTrickDecPractice()">도전! ⚡</button>
+</div>
+<div id="trickDecArea" style="display:none;"></div>
+<h3 style="margin:20px 0 10px;color:#1a1a2e;">🧪 이진수 → 십진수 직접 해보기</h3>
+<div class="concept-box green" style="margin-bottom:15px;">
+<p><strong>💡 핵심:</strong> 이진수의 자릿값을 먼저 써보고, 1인 자리의 값만 더하면 끝!</p>
+<p>오른쪽부터 자릿값: <span class="highlight">1, 2, 4, 8, 16, 32, 64, 128</span> (2배씩 커져요!)</p>
+</div>
+<div style="display:flex;gap:15px;align-items:center;margin-bottom:20px;flex-wrap:wrap;">
+<label style="font-weight:bold;color:#555;min-width:80px;">이진수:</label>
+<input type="text" id="trickBinInput" placeholder="예: 1010" maxlength="8" style="flex:1;padding:12px 18px;border:2px solid #ddd;border-radius:10px;font-size:1.2em;min-width:150px;">
+<button class="btn btn-success" onclick="startTrickBinPractice()">도전! ⚡</button>
+</div>
+<div id="trickBinArea" style="display:none;"></div>
+</div>
+</div>
+</div>
+<!-- ===== 도전 퀴즈 ===== -->
+<div class="tab-content" id="tab-quiz">
+<div class="card">
+<h2>✏️ 도전! 진법 변환 퀴즈</h2>
+<div class="concept-box"><p>다양한 유형의 문제를 풀어보세요! 유형을 선택하고 도전 💪</p></div>
+<div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin:15px 0;">
+<button class="quiz-type-btn active" onclick="setQuizType('decToBin',this)">십진수→이진수</button>
+<button class="quiz-type-btn" onclick="setQuizType('binToDec',this)">이진수→십진수</button>
+<button class="quiz-type-btn" onclick="setQuizType('nbit',this)">N비트 표현</button>
+<button class="quiz-type-btn" onclick="setQuizType('maxmin',this)">최대값/개수</button>
+<button class="quiz-type-btn" onclick="setQuizType('mixed',this)">🔀 혼합</button>
+</div>
+<div id="quizArea" style="display:none;">
+<div id="quizQuestion" style="font-size:1.15em;font-weight:bold;color:#333;margin-bottom:15px;padding:20px;background:#e8f4fd;border-radius:12px;text-align:center;line-height:1.7;"></div>
+<div style="display:flex;gap:10px;justify-content:center;align-items:center;flex-wrap:wrap;">
+<input type="text" id="quizAnswer" placeholder="정답을 입력하세요" onkeypress="if(event.key==='Enter')checkQuizAnswer()" style="padding:10px 15px;border:2px solid #ddd;border-radius:10px;font-size:1.1em;width:200px;text-align:center;">
+<button class="btn btn-warning" onclick="checkQuizAnswer()">정답 확인 ✅</button>
+</div>
+<div id="quizFeedback" style="margin-top:15px;padding:12px 20px;border-radius:10px;text-align:center;font-weight:bold;display:none;"></div>
+<div style="display:flex;justify-content:center;gap:30px;margin-top:15px;padding:15px;background:#f8f9fa;border-radius:10px;">
+<div style="text-align:center;"><div style="font-size:0.85em;color:#666;">맞은 문제</div><div style="font-size:1.5em;font-weight:bold;color:#667eea;" id="correctCount">0</div></div>
+<div style="text-align:center;"><div style="font-size:0.85em;color:#666;">전체 문제</div><div style="font-size:1.5em;font-weight:bold;color:#667eea;" id="totalCount">0</div></div>
+<div style="text-align:center;"><div style="font-size:0.85em;color:#666;">정답률</div><div style="font-size:1.5em;font-weight:bold;color:#667eea;" id="accuracy">0%</div></div>
+</div>
+</div>
+<div class="btn-group" style="margin-top:20px;">
+<button class="btn btn-primary" onclick="generateQuiz()">문제 출제 🎲</button>
+<button class="btn btn-info" onclick="resetScore()">점수 초기화 🔄</button>
+</div>
+</div>
+</div>
+<!-- ===== 보충 학습 ===== -->
+<div class="tab-content" id="tab-supplement">
+<div class="card">
+<h2>📚 보충 학습: 2의 거듭제곱</h2>
+<div class="concept-box pink">
+<p><strong>🐣 모든 수의 0제곱은 1이다!</strong></p>
+<p>2⁰ = 1 (왜? 2¹ ÷ 2 = 1이니까!)</p>
+</div>
+<div class="concept-box">
+<p><strong>규칙:</strong> 아래로 내려가면 <span class="highlight">× 2</span>, 위로 올라가면 <span class="highlight">÷ 2</span></p>
+</div>
+<div style="display:flex;flex-direction:column;align-items:center;gap:0;margin:20px auto;max-width:300px;">
+<div style="display:flex;align-items:center;justify-content:center;padding:12px 20px;width:100%;border:2px solid #667eea;border-radius:12px;margin-bottom:-1px;background:white;"><span style="font-size:1.2em;font-weight:bold;color:#667eea;">2⁰ = <strong>1</strong></span></div>
+<div style="display:flex;align-items:center;justify-content:space-between;width:220px;padding:4px 30px;color:#888;font-size:0.85em;"><span style="color:#e74c3c;font-weight:bold;">÷ 2 ↑</span><span style="color:#28a745;font-weight:bold;">↓ × 2</span></div>
+<div style="display:flex;align-items:center;justify-content:center;padding:12px 20px;width:100%;border:2px solid #667eea;border-radius:12px;margin-bottom:-1px;background:white;"><span style="font-size:1.2em;font-weight:bold;color:#667eea;">2¹ = <strong>2</strong></span></div>
+<div style="display:flex;align-items:center;justify-content:space-between;width:220px;padding:4px 30px;color:#888;font-size:0.85em;"><span style="color:#e74c3c;font-weight:bold;">÷ 2 ↑</span><span style="color:#28a745;font-weight:bold;">↓ × 2</span></div>
+<div style="display:flex;align-items:center;justify-content:center;padding:12px 20px;width:100%;border:2px solid #667eea;border-radius:12px;margin-bottom:-1px;background:white;"><span style="font-size:1.2em;font-weight:bold;color:#667eea;">2² = <strong>4</strong></span></div>
+<div style="display:flex;align-items:center;justify-content:space-between;width:220px;padding:4px 30px;color:#888;font-size:0.85em;"><span style="color:#e74c3c;font-weight:bold;">÷ 2 ↑</span><span style="color:#28a745;font-weight:bold;">↓ × 2</span></div>
+<div style="display:flex;align-items:center;justify-content:center;padding:12px 20px;width:100%;border:2px solid #667eea;border-radius:12px;margin-bottom:-1px;background:white;"><span style="font-size:1.2em;font-weight:bold;color:#667eea;">2³ = <strong>8</strong></span></div>
+<div style="display:flex;align-items:center;justify-content:space-between;width:220px;padding:4px 30px;color:#888;font-size:0.85em;"><span style="color:#e74c3c;font-weight:bold;">÷ 2 ↑</span><span style="color:#28a745;font-weight:bold;">↓ × 2</span></div>
+<div style="display:flex;align-items:center;justify-content:center;padding:12px 20px;width:100%;border:2px solid #667eea;border-radius:12px;margin-bottom:-1px;background:white;"><span style="font-size:1.2em;font-weight:bold;color:#667eea;">2⁴ = <strong>16</strong></span></div>
+<div style="display:flex;align-items:center;justify-content:space-between;width:220px;padding:4px 30px;color:#888;font-size:0.85em;"><span style="color:#e74c3c;font-weight:bold;">÷ 2 ↑</span><span style="color:#28a745;font-weight:bold;">↓ × 2</span></div>
+<div style="display:flex;align-items:center;justify-content:center;padding:12px 20px;width:100%;border:2px solid #667eea;border-radius:12px;margin-bottom:-1px;background:white;"><span style="font-size:1.2em;font-weight:bold;color:#667eea;">2⁵ = <strong>32</strong></span></div>
+<div style="display:flex;align-items:center;justify-content:space-between;width:220px;padding:4px 30px;color:#888;font-size:0.85em;"><span style="color:#e74c3c;font-weight:bold;">÷ 2 ↑</span><span style="color:#28a745;font-weight:bold;">↓ × 2</span></div>
+<div style="display:flex;align-items:center;justify-content:center;padding:12px 20px;width:100%;border:2px solid #667eea;border-radius:12px;margin-bottom:-1px;background:white;"><span style="font-size:1.2em;font-weight:bold;color:#667eea;">2⁶ = <strong>64</strong></span></div>
+<div style="display:flex;align-items:center;justify-content:space-between;width:220px;padding:4px 30px;color:#888;font-size:0.85em;"><span style="color:#e74c3c;font-weight:bold;">÷ 2 ↑</span><span style="color:#28a745;font-weight:bold;">↓ × 2</span></div>
+<div style="display:flex;align-items:center;justify-content:center;padding:12px 20px;width:100%;border:2px solid #667eea;border-radius:12px;background:white;"><span style="font-size:1.2em;font-weight:bold;color:#667eea;">2⁷ = <strong>128</strong></span></div>
+</div>
+<div class="concept-box green" style="margin-top:25px;">
+<p><strong>💡 핵심 정리:</strong></p>
+<p>• 가장 오른쪽은 2⁰ = 1의 자리</p>
+<p>• 왼쪽으로 한 자리 올라갈 때마다 자릿값이 <span class="highlight">2배</span></p>
+<p>• 각 자리의 이진수(0 또는 1)와 자릿값을 곱하여 더하면 십진수!</p>
+<p>• 예: 1101₍₂₎ = 1×8 + 1×4 + 0×2 + 1×1 = 13</p>
+</div>
+</div>
+</div>
+<!-- ===== 심화 학습 (하위 메뉴) ===== -->
+<div class="tab-content" id="tab-advanced">
+<div class="card">
+<h2>🚀 심화 학습</h2>
+<div class="concept-box"><p>아래에서 학습할 내용을 선택하세요!</p></div>
+<div class="btn-group">
+<button class="btn btn-primary" onclick="showSubTab('adv-octal')">8진수 (3비트)</button>
+<button class="btn btn-success" onclick="showSubTab('adv-hex')">16진수 (4비트)</button>
+</div>
+</div>
+<!-- 8진수 -->
+<div class="sub-content" id="sub-adv-octal" style="display:none;">
+<div class="card">
+<h2>🔢 8진수의 이해</h2>
+<div class="concept-box">
+<p>8진수는 <span class="highlight">0~7</span>까지 8개의 숫자를 사용하여 표현하는 방식이에요.</p>
+<p>8진수 숫자 하나는 <span class="highlight">3자리 이진수</span>로 표현할 수 있어요!</p>
+</div>
+
+<div class="concept-box green">
+<p><strong>💡 왜 8진수를 사용할까?</strong></p>
+<p>이진수 3자리, 즉 <span class="highlight">3비트</span>는 8진수 한 자리로 표현할 수 있어요.</p>
+<p>이진수가 길어지면 읽기 어려운데, 8진수를 이용하면 이진수를 <strong>간결하게</strong> 나타낼 수 있어요!</p>
+<p>예) 이진수 110101₍₂₎ → 8진수로 65₍₈₎ (6자리가 2자리로!)</p>
+</div>
+
+<h3 style="margin:15px 0 10px;color:#1a1a2e;">📋 8진수 · 이진수 대응표</h3>
+<table style="width:100%;border-collapse:collapse;margin:15px 0;text-align:center;font-size:0.95em;">
+<tr><th style="background:#667eea;color:white;padding:10px;">8진수</th><td style="padding:10px;border:1px solid #e0e0e0;">0</td><td style="padding:10px;border:1px solid #e0e0e0;">1</td><td style="padding:10px;border:1px solid #e0e0e0;">2</td><td style="padding:10px;border:1px solid #e0e0e0;">3</td><td style="padding:10px;border:1px solid #e0e0e0;">4</td><td style="padding:10px;border:1px solid #e0e0e0;">5</td><td style="padding:10px;border:1px solid #e0e0e0;">6</td><td style="padding:10px;border:1px solid #e0e0e0;">7</td></tr>
+<tr><th style="background:#667eea;color:white;padding:10px;">이진수</th><td style="padding:10px;border:1px solid #e0e0e0;">000</td><td style="padding:10px;border:1px solid #e0e0e0;">001</td><td style="padding:10px;border:1px solid #e0e0e0;">010</td><td style="padding:10px;border:1px solid #e0e0e0;">011</td><td style="padding:10px;border:1px solid #e0e0e0;">100</td><td style="padding:10px;border:1px solid #e0e0e0;">101</td><td style="padding:10px;border:1px solid #e0e0e0;">110</td><td style="padding:10px;border:1px solid #e0e0e0;">111</td></tr>
+</table>
+
+<div class="concept-box">
+<p><strong>변환 방법:</strong></p>
+<p>• <strong>이진수 → 8진수:</strong> 오른쪽부터 <span class="highlight">3자리씩 묶어서</span> 각 묶음을 8진수로 변환한다. (자리가 부족하면 앞에 0을 채운다)</p>
+<p>• <strong>8진수 → 이진수:</strong> 8진수의 각 자리를 <span class="highlight">3자리 이진수</span>로 변환하여 이어 붙인다.</p>
+</div>
+
+<div style="background:#f8f9ff;border:2px solid #e0e7ff;border-radius:15px;padding:20px;margin:15px 0;">
+<p style="font-weight:bold;color:#555;margin-bottom:10px;">📌 예시 1: 이진수 → 8진수</p>
+<p style="font-family:monospace;font-size:1em;margin:8px 0;">110101₍₂₎</p>
+<p style="font-family:monospace;font-size:1em;margin:8px 0;">= <span style="color:#e91e63;font-weight:bold;">110</span> <span style="color:#1565c0;font-weight:bold;">101</span> (오른쪽부터 3자리씩 묶기)</p>
+<p style="font-family:monospace;font-size:1em;margin:8px 0;">= <span style="color:#e91e63;font-weight:bold;">6</span> <span style="color:#1565c0;font-weight:bold;">5</span></p>
+<p style="font-family:monospace;font-size:1em;margin:8px 0;">= <strong>65₍₈₎</strong></p>
+</div>
+
+<div style="background:#f8f9ff;border:2px solid #e0e7ff;border-radius:15px;padding:20px;margin:15px 0;">
+<p style="font-weight:bold;color:#555;margin-bottom:10px;">📌 예시 2: 8진수 → 이진수</p>
+<p style="font-family:monospace;font-size:1em;margin:8px 0;">37₍₈₎</p>
+<p style="font-family:monospace;font-size:1em;margin:8px 0;">= <span style="color:#e91e63;font-weight:bold;">3</span> → <span style="color:#e91e63;">011</span> &nbsp;|&nbsp; <span style="color:#1565c0;font-weight:bold;">7</span> → <span style="color:#1565c0;">111</span> (각 자리를 3비트로)</p>
+<p style="font-family:monospace;font-size:1em;margin:8px 0;">= <strong>011111₍₂₎</strong> (앞의 0은 생략 가능 → 11111₍₂₎)</p>
+</div>
+<h3 style="margin:20px 0 10px;color:#1a1a2e;">✏️ 직접 해보기</h3>
+<div style="display:flex;gap:15px;align-items:center;margin-bottom:20px;flex-wrap:wrap;">
+<label style="font-weight:bold;color:#555;min-width:80px;">이진수:</label>
+<input type="text" id="octalBinInput" placeholder="예: 110101" maxlength="12" style="flex:1;padding:12px 18px;border:2px solid #ddd;border-radius:10px;font-size:1.2em;min-width:150px;">
+<button class="btn btn-primary" onclick="startBinToOctalPractice()">도전! 🚀</button>
+</div>
+<div id="binToOctalArea" style="display:none;"></div>
+<hr style="margin:30px 0;border:1px dashed #ddd;">
+<h3 style="margin-bottom:10px;color:#1a1a2e;">✏️ 직접 해보기: 8진수 → 이진수</h3>
+<div style="display:flex;gap:15px;align-items:center;margin-bottom:20px;flex-wrap:wrap;">
+<label style="font-weight:bold;color:#555;min-width:80px;">8진수:</label>
+<input type="text" id="octalInput" placeholder="예: 65" maxlength="4" style="flex:1;padding:12px 18px;border:2px solid #ddd;border-radius:10px;font-size:1.2em;min-width:150px;">
+<button class="btn btn-success" onclick="startOctalToBinPractice()">도전! 🚀</button>
+</div>
+<div id="octalToBinArea" style="display:none;"></div>
+</div>
+</div>
+<!-- 16진수 -->
+<div class="sub-content" id="sub-adv-hex" style="display:none;">
+<div class="card">
+<h2>🔢 16진수의 이해</h2>
+<div class="concept-box">
+<p>16진수는 0부터 9까지의 10개의 숫자와 <span class="highlight">A(=10)</span>부터 <span class="highlight">F(=15)</span>까지의 6개의 기호를 사용하여 총 <strong>16개의 기호</strong>로 숫자를 표현하는 방식이에요.</p>
+<p>16진수 숫자 하나는 네 자리의 이진수로 표현할 수 있으며 나열된 이진수는 오른쪽부터 네 자리씩 묶어서 16진수로 변환할 수 있어요.</p>
+</div>
+
+<div class="concept-box green">
+<p><strong>💡 16진수를 사용하는 이유</strong></p>
+<p>이진수 네 자리, 즉 <span class="highlight">4비트</span>는 16진수 한 자리로 표현할 수 있어요.</p>
+<p>1바이트(8비트)는 16진수 <span class="highlight">두 자리</span>로 표현할 수 있어요.</p>
+<p>이렇게 16진수를 이용하면 디지털 데이터를 구성하고 있는 이진수를 <strong>간결하게</strong> 나타낼 수 있어요!</p>
+<p>예) HTML 색상 코드: <span style="color:#A6388E;font-weight:bold;">#A6388E</span> ← 이것도 16진수!</p>
+</div>
+
+<h3 style="margin:15px 0 10px;color:#1a1a2e;">📋 십진수 · 16진수 · 이진수 대응표</h3>
+<div style="overflow-x:auto;">
+<table style="width:100%;border-collapse:collapse;margin:15px 0;text-align:center;font-size:0.8em;">
+<tr><th style="background:#667eea;color:white;padding:8px;">십진수</th><td style="padding:8px;border:1px solid #e0e0e0;">0</td><td style="padding:8px;border:1px solid #e0e0e0;">1</td><td style="padding:8px;border:1px solid #e0e0e0;">2</td><td style="padding:8px;border:1px solid #e0e0e0;">3</td><td style="padding:8px;border:1px solid #e0e0e0;">4</td><td style="padding:8px;border:1px solid #e0e0e0;">5</td><td style="padding:8px;border:1px solid #e0e0e0;">6</td><td style="padding:8px;border:1px solid #e0e0e0;">7</td><td style="padding:8px;border:1px solid #e0e0e0;">8</td><td style="padding:8px;border:1px solid #e0e0e0;">9</td><td style="padding:8px;border:1px solid #e0e0e0;">10</td><td style="padding:8px;border:1px solid #e0e0e0;">11</td><td style="padding:8px;border:1px solid #e0e0e0;">12</td><td style="padding:8px;border:1px solid #e0e0e0;">13</td><td style="padding:8px;border:1px solid #e0e0e0;">14</td><td style="padding:8px;border:1px solid #e0e0e0;">15</td></tr>
+<tr><th style="background:#667eea;color:white;padding:8px;">16진수</th><td style="padding:8px;border:1px solid #e0e0e0;">0</td><td style="padding:8px;border:1px solid #e0e0e0;">1</td><td style="padding:8px;border:1px solid #e0e0e0;">2</td><td style="padding:8px;border:1px solid #e0e0e0;">3</td><td style="padding:8px;border:1px solid #e0e0e0;">4</td><td style="padding:8px;border:1px solid #e0e0e0;">5</td><td style="padding:8px;border:1px solid #e0e0e0;">6</td><td style="padding:8px;border:1px solid #e0e0e0;">7</td><td style="padding:8px;border:1px solid #e0e0e0;">8</td><td style="padding:8px;border:1px solid #e0e0e0;">9</td><td style="padding:8px;border:1px solid #e0e0e0;font-weight:bold;color:#e91e63;">A</td><td style="padding:8px;border:1px solid #e0e0e0;font-weight:bold;color:#e91e63;">B</td><td style="padding:8px;border:1px solid #e0e0e0;font-weight:bold;color:#e91e63;">C</td><td style="padding:8px;border:1px solid #e0e0e0;font-weight:bold;color:#e91e63;">D</td><td style="padding:8px;border:1px solid #e0e0e0;font-weight:bold;color:#e91e63;">E</td><td style="padding:8px;border:1px solid #e0e0e0;font-weight:bold;color:#e91e63;">F</td></tr>
+<tr><th style="background:#667eea;color:white;padding:8px;">이진수</th><td style="padding:8px;border:1px solid #e0e0e0;font-size:0.9em;">0000</td><td style="padding:8px;border:1px solid #e0e0e0;font-size:0.9em;">0001</td><td style="padding:8px;border:1px solid #e0e0e0;font-size:0.9em;">0010</td><td style="padding:8px;border:1px solid #e0e0e0;font-size:0.9em;">0011</td><td style="padding:8px;border:1px solid #e0e0e0;font-size:0.9em;">0100</td><td style="padding:8px;border:1px solid #e0e0e0;font-size:0.9em;">0101</td><td style="padding:8px;border:1px solid #e0e0e0;font-size:0.9em;">0110</td><td style="padding:8px;border:1px solid #e0e0e0;font-size:0.9em;">0111</td><td style="padding:8px;border:1px solid #e0e0e0;font-size:0.9em;">1000</td><td style="padding:8px;border:1px solid #e0e0e0;font-size:0.9em;">1001</td><td style="padding:8px;border:1px solid #e0e0e0;font-size:0.9em;">1010</td><td style="padding:8px;border:1px solid #e0e0e0;font-size:0.9em;">1011</td><td style="padding:8px;border:1px solid #e0e0e0;font-size:0.9em;">1100</td><td style="padding:8px;border:1px solid #e0e0e0;font-size:0.9em;">1101</td><td style="padding:8px;border:1px solid #e0e0e0;font-size:0.9em;">1110</td><td style="padding:8px;border:1px solid #e0e0e0;font-size:0.9em;">1111</td></tr>
+</table>
+</div>
+
+<div class="concept-box">
+<p><strong>변환 방법:</strong></p>
+<p>• <strong>이진수 → 16진수:</strong> 오른쪽부터 <span class="highlight">4자리씩 묶어서</span> 각 묶음을 16진수로 변환한다. (자리가 부족하면 앞에 0을 채운다)</p>
+<p>• <strong>16진수 → 이진수:</strong> 16진수의 각 자리를 <span class="highlight">4자리 이진수</span>로 변환하여 이어 붙인다. (가장 앞에 있는 0은 생략 가능)</p>
+</div>
+
+<div style="background:#f8f9ff;border:2px solid #e0e7ff;border-radius:15px;padding:20px;margin:15px 0;">
+<p style="font-weight:bold;color:#555;margin-bottom:10px;">📌 예시 1: 이진수 → 16진수</p>
+<p style="font-family:monospace;font-size:1em;margin:8px 0;">1111001010111000₍₂₎</p>
+<p style="font-family:monospace;font-size:1em;margin:8px 0;">= <span style="color:#e91e63;font-weight:bold;">1111</span> <span style="color:#1565c0;font-weight:bold;">0010</span> <span style="color:#2e7d32;font-weight:bold;">1011</span> <span style="color:#f57c00;font-weight:bold;">1000</span> (오른쪽부터 4자리씩 묶기)</p>
+<p style="font-family:monospace;font-size:1em;margin:8px 0;">= <span style="color:#e91e63;font-weight:bold;">F</span> <span style="color:#1565c0;font-weight:bold;">2</span> <span style="color:#2e7d32;font-weight:bold;">B</span> <span style="color:#f57c00;font-weight:bold;">8</span></p>
+<p style="font-family:monospace;font-size:1em;margin:8px 0;">= <strong>F2B8₍₁₆₎</strong></p>
+</div>
+
+<div style="background:#f8f9ff;border:2px solid #e0e7ff;border-radius:15px;padding:20px;margin:15px 0;">
+<p style="font-weight:bold;color:#555;margin-bottom:10px;">📌 예시 2: 16진수 → 이진수</p>
+<p style="font-family:monospace;font-size:1em;margin:8px 0;">3CA₍₁₆₎</p>
+<p style="font-family:monospace;font-size:1em;margin:8px 0;">= <span style="color:#e91e63;font-weight:bold;">3</span> → <span style="color:#e91e63;">0011</span> &nbsp;|&nbsp; <span style="color:#1565c0;font-weight:bold;">C</span> → <span style="color:#1565c0;">1100</span> &nbsp;|&nbsp; <span style="color:#2e7d32;font-weight:bold;">A</span> → <span style="color:#2e7d32;">1010</span> (각 자리를 4비트로)</p>
+<p style="font-family:monospace;font-size:1em;margin:8px 0;">= <strong>001111001010₍₂₎</strong> (앞의 0은 생략 가능 → 1111001010₍₂₎)</p>
+</div>
+
+<h3 style="margin:20px 0 10px;color:#1a1a2e;">✏️ 직접 해보기: 이진수 → 16진수</h3>
+<div style="display:flex;gap:15px;align-items:center;margin-bottom:20px;flex-wrap:wrap;">
+<label style="font-weight:bold;color:#555;min-width:80px;">이진수:</label>
+<input type="text" id="hexBinInput" placeholder="예: 10011011" maxlength="16" style="flex:1;padding:12px 18px;border:2px solid #ddd;border-radius:10px;font-size:1.2em;min-width:150px;">
+<button class="btn btn-primary" onclick="startBinToHexPractice()">도전! 🚀</button>
+</div>
+<div id="binToHexArea" style="display:none;"></div>
+<hr style="margin:30px 0;border:1px dashed #ddd;">
+<h3 style="margin-bottom:10px;color:#1a1a2e;">✏️ 직접 해보기: 16진수 → 이진수</h3>
+<div style="display:flex;gap:15px;align-items:center;margin-bottom:20px;flex-wrap:wrap;">
+<label style="font-weight:bold;color:#555;min-width:80px;">16진수:</label>
+<input type="text" id="hexInput" placeholder="예: 3CA" maxlength="4" style="flex:1;padding:12px 18px;border:2px solid #ddd;border-radius:10px;font-size:1.2em;min-width:150px;text-transform:uppercase;">
+<button class="btn btn-success" onclick="startHexToBinPractice()">도전! 🚀</button>
+</div>
+<div id="hexToBinArea" style="display:none;"></div>
+</div>
+</div>
+</div><!-- tab-advanced end -->
+</div><!-- container end -->
+<style>
+.quiz-type-btn{padding:8px 16px;border:2px solid #667eea;border-radius:20px;background:white;color:#667eea;font-weight:bold;cursor:pointer;font-size:0.85em;transition:all 0.3s}
+.quiz-type-btn:hover,.quiz-type-btn.active{background:#667eea;color:white}
+.sub-content{animation:fadeIn 0.4s ease}
+.practice-table{width:100%;border-collapse:collapse;margin:15px 0;text-align:center}
+.practice-table th{background:#667eea;color:white;padding:10px;font-size:0.9em}
+.practice-table td{padding:8px;border:1px solid #e0e0e0;font-size:1em}
+.practice-table input{width:60px;padding:6px;border:2px solid #ddd;border-radius:8px;text-align:center;font-size:1em;font-weight:bold}
+.practice-table input:focus{outline:none;border-color:#667eea}
+.solution{margin-top:20px;padding:20px;background:#fafafa;border-radius:15px;border:2px dashed #ddd;display:none}
+.solution.show{display:block;animation:fadeIn 0.5s ease}
+.solution h3{color:#667eea;margin-bottom:15px;font-size:1.1em}
+.step{display:flex;align-items:center;padding:10px 15px;margin-bottom:8px;background:white;border-radius:10px;border-left:4px solid #667eea;box-shadow:0 2px 5px rgba(0,0,0,0.05)}
+.step-number{background:#667eea;color:white;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.85em;font-weight:bold;margin-right:12px;flex-shrink:0}
+.step-content{font-size:0.95em;color:#444;line-height:1.6}
+.result-box{margin-top:15px;padding:15px 20px;background:linear-gradient(135deg,#667eea,#764ba2);color:white;border-radius:12px;text-align:center;font-size:1.3em;font-weight:bold}
+.final-answer-area{margin-top:20px;padding:20px;background:#e8f4fd;border-radius:15px;text-align:center}
+.final-answer-area label{font-weight:bold;color:#333;font-size:1.1em;margin-right:10px}
+.final-answer-area input{padding:10px 15px;border:2px solid #667eea;border-radius:10px;font-size:1.2em;width:180px;text-align:center;font-weight:bold}
+.final-answer-area input:focus{outline:none;border-color:#764ba2}
+.trick-practice{background:#f8f9ff;border:2px solid #e0e7ff;border-radius:15px;padding:20px;margin:15px 0}
+.bit-card{width:85px;height:115px;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:transform 0.3s,box-shadow 0.3s;user-select:none;gap:6px;padding:8px}
+.bit-card:hover{transform:translateY(-5px);box-shadow:0 8px 25px rgba(0,0,0,0.2)}
+.bit-card.off{background:linear-gradient(135deg,#e0e0e0,#bdbdbd);border:3px solid #999}
+.bit-card.on{background:linear-gradient(135deg,#667eea,#764ba2);border:3px solid #4a5acf;box-shadow:0 0 20px rgba(102,126,234,0.5)}
+.bit-card .bit-dots{width:55px;min-height:45px;display:flex;align-items:center;justify-content:center}
+.bit-card .place-label{font-size:0.85em;margin-top:5px;color:rgba(255,255,255,0.9);font-weight:bold}
+.bit-card.off .place-label{color:#666}
+@media(max-width:600px){h1{font-size:1.5em}.card{padding:20px}.tab-btn{padding:10px 12px;font-size:0.8em}.bit-card{width:60px;height:85px}}
+</style>
+<script>
+// ===== 탭/서브탭 전환 =====
+function showTab(name,btn){
+document.querySelectorAll('.tab-content').forEach(function(t){t.classList.remove('active')});
+document.querySelectorAll('.tab-btn').forEach(function(b){b.classList.remove('active')});
+document.getElementById('tab-'+name).classList.add('active');
+btn.classList.add('active');
+// 서브탭 숨기기
+document.querySelectorAll('.sub-content').forEach(function(s){s.style.display='none'});
+}
+function showSubTab(id){
+document.querySelectorAll('.sub-content').forEach(function(s){s.style.display='none'});
+document.getElementById('sub-'+id).style.display='block';
+}
+
+// ===== 마술쇼 =====
+var magicBits=[null,null,null,null],magicStep=0;
+var magicCardData=[
+{title:'첫 번째 카드',numbers:'8 &nbsp;&nbsp; 9 &nbsp;&nbsp; 10 &nbsp;&nbsp; 11<br>12 &nbsp;&nbsp; 13 &nbsp;&nbsp; 14 &nbsp;&nbsp; 15',color:'#667eea',bit:3},
+{title:'두 번째 카드',numbers:'4 &nbsp;&nbsp; 5 &nbsp;&nbsp; 6 &nbsp;&nbsp; 7<br>12 &nbsp;&nbsp; 13 &nbsp;&nbsp; 14 &nbsp;&nbsp; 15',color:'#11998e',bit:2},
+{title:'세 번째 카드',numbers:'2 &nbsp;&nbsp; 3 &nbsp;&nbsp; 6 &nbsp;&nbsp; 7<br>10 &nbsp;&nbsp; 11 &nbsp;&nbsp; 14 &nbsp;&nbsp; 15',color:'#f5576c',bit:1},
+{title:'네 번째 카드',numbers:'1 &nbsp;&nbsp; 3 &nbsp;&nbsp; 5 &nbsp;&nbsp; 7<br>9 &nbsp;&nbsp; 11 &nbsp;&nbsp; 13 &nbsp;&nbsp; 15',color:'#9b59b6',bit:0}
+];
+function showMagicCard(){var d=magicCardData[magicStep];document.getElementById('magicCardTitle').textContent=d.title;document.getElementById('magicCardTitle').style.color=d.color;document.getElementById('magicCardNumbers').innerHTML=d.numbers;document.getElementById('magicCurrentCard').style.borderColor=d.color;document.getElementById('magicProgress').textContent='카드 '+(magicStep+1)+' / 4';document.getElementById('magicCardArea').style.display='block';document.getElementById('magicResult').style.display='none';}
+function answerMagic(val){magicBits[magicCardData[magicStep].bit]=val;magicStep++;if(magicStep<4){showMagicCard();}else{document.getElementById('magicCardArea').style.display='none';var n=magicBits[3]*8+magicBits[2]*4+magicBits[1]*2+magicBits[0]*1;var r=document.getElementById('magicResult');r.style.display='block';r.innerHTML='<div style="padding:25px;background:linear-gradient(135deg,#667eea,#764ba2);border-radius:15px;text-align:center;color:white;"><div style="font-size:1.3em;margin-bottom:10px;">🪄 당신이 고른 숫자는...</div><div style="font-size:3.5em;font-weight:bold;margin:10px 0;">'+n+'</div></div>';}}
+function resetMagic(){magicBits=[null,null,null,null];magicStep=0;showMagicCard();}
+
+// ===== 카드 게임 =====
+var gameCards=[0,0,0,0,0],targetNumber=0,gameStreak=0;
+function initGame(){var board=document.getElementById('gameBoard');var values=[16,8,4,2,1];board.innerHTML='';for(var i=0;i<5;i++){var card=document.createElement('div');card.className='bit-card off';card.id='card-'+i;var dd=document.createElement('div');dd.className='bit-dots';dd.innerHTML=makeDots(values[i],false);var lb=document.createElement('div');lb.className='place-label';lb.textContent=values[i];card.appendChild(dd);card.appendChild(lb);(function(idx){card.onclick=function(){toggleCard(idx)};})(i);board.appendChild(card);}targetNumber=Math.floor(Math.random()*31)+1;document.getElementById('gameTarget').textContent=targetNumber;}
+function makeDots(c,on){var col=on?'white':'#999';if(c===1)return'<div style="display:grid;grid-template-columns:1fr;gap:3px;justify-items:center;"><span style="color:'+col+';font-size:1.4em;">●</span></div>';if(c===2)return'<div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;justify-items:center;"><span style="color:'+col+';font-size:1.2em;">●</span><span style="color:'+col+';font-size:1.2em;">●</span></div>';if(c===4){var h='<div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;justify-items:center;">';for(var i=0;i<4;i++)h+='<span style="color:'+col+';font-size:1.1em;">●</span>';return h+'</div>';}if(c===8){var h='<div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:2px;justify-items:center;">';for(var i=0;i<8;i++)h+='<span style="color:'+col+';font-size:0.7em;">●</span>';return h+'</div>';}var h='<div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:1px;justify-items:center;">';for(var i=0;i<16;i++)h+='<span style="color:'+col+';font-size:0.5em;">●</span>';return h+'</div>';}
+function toggleCard(i){gameCards[i]=gameCards[i]===0?1:0;var card=document.getElementById('card-'+i);var values=[16,8,4,2,1];if(gameCards[i]===1){card.className='bit-card on';card.querySelector('.bit-dots').innerHTML=makeDots(values[i],true);}else{card.className='bit-card off';card.querySelector('.bit-dots').innerHTML=makeDots(values[i],false);}updateGameSum();}
+function updateGameSum(){var values=[16,8,4,2,1];var sum=0;for(var i=0;i<5;i++)sum+=gameCards[i]*values[i];document.getElementById('gameSum').innerHTML='현재 합: <strong>'+sum+'</strong> (이진수: <strong>'+gameCards.join('')+'</strong>)';}
+function submitGame(){var values=[16,8,4,2,1];var sum=0;for(var i=0;i<5;i++)sum+=gameCards[i]*values[i];var binary=gameCards.join('');var msg=document.getElementById('gameMessage');var correct=(sum===targetNumber);if(correct){gameStreak++;msg.style.display='block';msg.style.background='#d4edda';msg.style.color='#155724';msg.textContent='🎉 정답! '+binary+'₍₂₎ = '+sum+' (연속 '+gameStreak+'문제!)';}else{gameStreak=0;msg.style.display='block';msg.style.background='#f8d7da';msg.style.color='#721c24';msg.textContent='❌ 아쉬워요! 현재 합은 '+sum+'이에요. 목표는 '+targetNumber+'!';}setTimeout(function(){gameCards=[0,0,0,0,0];for(var i=0;i<5;i++){var card=document.getElementById('card-'+i);if(card){card.className='bit-card off';card.querySelector('.bit-dots').innerHTML=makeDots(values[i],false);}}document.getElementById('gameSum').innerHTML='현재 합: <strong>0</strong> (이진수: <strong>00000</strong>)';msg.style.display='none';if(correct){targetNumber=Math.floor(Math.random()*31)+1;document.getElementById('gameTarget').textContent=targetNumber;}},1000);}
+// ===== 정석풀이: 십진수→이진수 (단계별) =====
+var decPracticeNum=0,decPracticeSteps=[],decCurrentStep=0;
+function startDecPractice(){var num=parseInt(document.getElementById('decInput').value);if(isNaN(num)||num<1||num>255){alert('1~255 사이의 숫자를 입력해주세요!');return;}decPracticeNum=num;decPracticeSteps=[];var t=num;while(t>0){decPracticeSteps.push({dividend:t,quotient:Math.floor(t/2),remainder:t%2});t=Math.floor(t/2);}decCurrentStep=0;var area=document.getElementById('decPracticeArea');area.innerHTML='<div id="decStepContainer"></div>';area.style.display='block';showDecStep();}
+function showDecStep(){var c=document.getElementById('decStepContainer');var html='<p style="font-weight:bold;color:#667eea;margin-bottom:10px;font-size:1.1em;">✏️ 한 단계씩 풀어보세요!</p>';html+='<table class="practice-table"><tr><th>단계</th><th>나눗셈</th><th>몫</th><th>나머지</th></tr>';for(var i=0;i<decCurrentStep;i++){var s=decPracticeSteps[i];html+='<tr style="background:#e8f5e9;"><td><strong>'+(i+1)+'</strong></td><td style="font-weight:bold;">'+s.dividend+' ÷ 2</td><td style="color:#1565c0;font-weight:bold;">'+s.quotient+'</td><td style="color:#e74c3c;font-weight:bold;font-size:1.2em;">'+s.remainder+'</td></tr>';}if(decCurrentStep<decPracticeSteps.length){var cur=decPracticeSteps[decCurrentStep];html+='<tr style="background:#fff3cd;"><td><strong>'+(decCurrentStep+1)+'</strong></td><td style="font-weight:bold;font-size:1.1em;color:#667eea;">'+cur.dividend+' ÷ 2</td><td><input type="number" id="dec-step-q" min="0" style="width:60px;" onkeypress="if(event.key===\'Enter\')submitDecStep()"></td><td><input type="number" id="dec-step-r" min="0" max="1" style="width:60px;" onkeypress="if(event.key===\'Enter\')submitDecStep()"></td></tr>';html+='</table><div class="btn-group" style="margin-top:10px;"><button class="btn btn-primary btn-sm" onclick="submitDecStep()">다음 단계 ➡️</button></div><div id="decStepFeedback" style="margin-top:8px;text-align:center;font-weight:bold;"></div>';}else{html+='</table><div style="text-align:center;font-size:1.5em;color:#667eea;margin:5px 0;font-weight:bold;">⬆️ 나머지를 아래에서 위로 읽기!</div><div class="final-answer-area"><label>최종 이진수:</label><input type="text" id="decFinalAnswer" placeholder="예: 1101"><button class="btn btn-warning btn-sm" style="margin-left:10px;" onclick="checkDecFinal()">제출 ✅</button></div><div class="solution" id="decPracticeSolution"></div>';}c.innerHTML=html;}
+function submitDecStep(){var q=parseInt(document.getElementById('dec-step-q').value),r=parseInt(document.getElementById('dec-step-r').value);var cor=decPracticeSteps[decCurrentStep];var fb=document.getElementById('decStepFeedback');if(isNaN(q)||isNaN(r)){fb.innerHTML='<span style="color:#e74c3c;">몫과 나머지를 모두 입력해주세요!</span>';return;}if(q===cor.quotient&&r===cor.remainder){decCurrentStep++;showDecStep();}else{var msg='';if(q!==cor.quotient)msg+='💡 힌트: '+cor.dividend+'을 2로 나눈 몫은? ';if(r!==cor.remainder)msg+='💡 '+cor.dividend+'이 '+(cor.dividend%2===0?'짝수':'홀수')+'이면 나머지는?';fb.innerHTML='<span style="color:#e74c3c;">'+msg+'</span>';}}
+function checkDecFinal(){var fi=document.getElementById('decFinalAnswer');var ans=decPracticeSteps.map(function(s){return s.remainder}).reverse().join('');var sol=document.getElementById('decPracticeSolution');if(fi.value.trim()===ans){fi.style.borderColor='#28a745';fi.style.background='#d4edda';var detail='';for(var i=0;i<decPracticeSteps.length;i++){var s=decPracticeSteps[i];detail+=s.dividend+' ÷ 2 = '+s.quotient+' ... '+s.remainder+'<br>';}sol.innerHTML='<h3>🎉 완벽해요!</h3><div class="result-box">십진수 '+decPracticeNum+' = 이진수 '+ans+'₍₂₎</div><div class="btn-group" style="margin-top:10px;"><button class="btn btn-sm btn-info" onclick="document.getElementById(\'decDetail\').style.display=document.getElementById(\'decDetail\').style.display===\'none\'?\'block\':\'none\'">풀이 보기 📝</button></div><div id="decDetail" style="display:none;margin-top:10px;padding:15px;background:#f8f9ff;border-radius:10px;font-family:monospace;line-height:2;">'+detail+'<br>⬆️ 나머지를 아래에서 위로: <strong>'+ans+'₍₂₎</strong></div>';}else{fi.style.borderColor='#e74c3c';fi.style.background='#f8d7da';var rem=decPracticeSteps.map(function(s){return s.remainder});sol.innerHTML='<h3>💡 힌트</h3><div class="step"><div class="step-number" style="background:#f5576c;">?</div><div class="step-content">나머지를 <strong>아래에서 위로</strong> 읽어보세요!<br>나머지 순서: '+rem.join(', ')+' → 이걸 뒤집으면?</div></div>';}sol.classList.add('show');}
+// ===== 정석풀이: 이진수→십진수 =====
+var binPracticeBits=[];
+function startBinPractice(){var input=document.getElementById('binInput').value.trim();if(!input||!/^[01]+$/.test(input)||input.length>8){alert('0과 1로만 이루어진 8자리 이하 이진수를 입력해주세요!');return;}binPracticeBits=input.split('');var len=binPracticeBits.length;var area=document.getElementById('binPracticeArea');var html='<div style="margin-top:15px;"><p style="font-weight:bold;color:#667eea;margin-bottom:8px;font-size:1.05em;">1단계: 전개식</p><div style="background:#f8f9ff;border-radius:12px;padding:15px;margin-bottom:15px;font-family:monospace;font-size:1.05em;line-height:2;"><span style="color:#667eea;font-weight:bold;">'+input+'₍₂₎</span> = ';var parts=[];for(var i=0;i<len;i++){var p=len-1-i;parts.push('<span style="color:#e91e63;font-weight:bold;">'+binPracticeBits[i]+'</span> × 2<sup>'+p+'</sup>');}html+=parts.join(' + ')+'</div>';html+='<p style="font-weight:bold;color:#1565c0;margin-bottom:8px;font-size:1.05em;">2단계: 각각 곱한 결과</p><div style="background:#f8f9ff;border-radius:12px;padding:15px;margin-bottom:15px;text-align:center;"><div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;align-items:center;">';for(var i=0;i<len;i++){var p=len-1-i;if(i>0)html+='<span style="font-size:1.2em;color:#888;">+</span>';html+='<div style="text-align:center;"><div style="font-size:0.8em;color:#888;margin-bottom:4px;">'+binPracticeBits[i]+'×'+Math.pow(2,p)+'</div><input type="number" id="bin-calc-'+i+'" min="0" style="width:55px;padding:6px;border:2px solid #ddd;border-radius:8px;text-align:center;font-size:1em;font-weight:bold;"></div>';}html+='</div></div><p style="font-weight:bold;color:#2e7d32;margin-bottom:8px;font-size:1.05em;">3단계: 모두 더한 값은?</p><div class="final-answer-area"><label>= </label><input type="number" id="binFinalAnswer" placeholder="?"><button class="btn btn-warning btn-sm" style="margin-left:10px;" onclick="checkBinPractice()">제출 ✅</button></div><div class="solution" id="binPracticeSolution"></div></div>';area.innerHTML=html;area.style.display='block';}
+function checkBinPractice(){var len=binPracticeBits.length;var allCorrect=true,total=0,calcResults=[];for(var i=0;i<len;i++){var p=len-1-i;var cv=parseInt(binPracticeBits[i])*Math.pow(2,p);calcResults.push(cv);total+=cv;var inp=document.getElementById('bin-calc-'+i);if(parseInt(inp.value)===cv){inp.style.borderColor='#28a745';inp.style.background='#d4edda';}else{inp.style.borderColor='#e74c3c';inp.style.background='#f8d7da';allCorrect=false;}}var fi=document.getElementById('binFinalAnswer');if(parseInt(fi.value)===total){fi.style.borderColor='#28a745';fi.style.background='#d4edda';}else{fi.style.borderColor='#e74c3c';fi.style.background='#f8d7da';allCorrect=false;}var sol=document.getElementById('binPracticeSolution');if(allCorrect){var detail=binPracticeBits.join('')+'₍₂₎ = '+binPracticeBits.map(function(b,i){return b+' × '+Math.pow(2,binPracticeBits.length-1-i)}).join(' + ')+'<br>= '+calcResults.join(' + ')+' = '+total;sol.innerHTML='<h3>🎉 완벽해요!</h3><div class="result-box" style="background:linear-gradient(135deg,#11998e,#38ef7d);">이진수 '+binPracticeBits.join('')+'₍₂₎ = 십진수 '+total+'</div><div class="btn-group" style="margin-top:10px;"><button class="btn btn-sm btn-info" onclick="document.getElementById(\'binDetail\').style.display=document.getElementById(\'binDetail\').style.display===\'none\'?\'block\':\'none\'">풀이 보기 📝</button></div><div id="binDetail" style="display:none;margin-top:10px;padding:15px;background:#f8f9ff;border-radius:10px;font-family:monospace;line-height:2;">'+detail+'</div>';}else{var html='<h3>💡 힌트</h3><div class="step"><div class="step-number" style="background:#f5576c;">?</div><div class="step-content">';var wrongCalc=false;for(var i=0;i<len;i++){if(parseInt(document.getElementById('bin-calc-'+i).value)!==calcResults[i]){wrongCalc=true;break;}}if(wrongCalc)html+='0 × (뭐든) = 0, 1 × (자릿값) = 자릿값 그대로!';else html+='곱한 결과는 맞았어요! 0이 아닌 것만 더해보세요!';html+='</div></div>';sol.innerHTML=html;}sol.classList.add('show');}
+// ===== 꿀팁: 십진수→이진수 =====
+var trickDecNum=0,trickDecPowers=[],trickDecStep=0,trickDecRemaining=0,trickDecBits=[];
+function startTrickDecPractice(){var num=parseInt(document.getElementById('trickDecInput').value);if(isNaN(num)||num<1||num>255){alert('1~255 사이의 숫자를 입력해주세요!');return;}trickDecNum=num;var powers=[128,64,32,16,8,4,2,1];var si=0;for(var i=0;i<powers.length;i++){if(powers[i]<=num){si=i;break;}}trickDecPowers=powers.slice(si);trickDecStep=0;trickDecRemaining=num;trickDecBits=[];var area=document.getElementById('trickDecArea');area.innerHTML='<div class="trick-practice" id="trickDecContainer"></div>';area.style.display='block';showTrickDecStep();}
+
+function showTrickDecStep(){var container=document.getElementById('trickDecContainer');var html='<p style="font-weight:bold;color:#f5576c;margin-bottom:15px;">한 단계씩 풀어보세요!</p>';
+// 이전 단계 표시 (가로)
+if(trickDecStep>0){html+='<div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:center;margin-bottom:15px;">';for(var i=0;i<trickDecStep;i++){var p=trickDecPowers[i];var bit=trickDecBits[i];html+='<div style="text-align:center;"><div style="font-size:0.75em;color:#888;">'+p+'</div><div style="width:40px;height:40px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1.3em;font-weight:bold;color:white;background:'+(bit===1?'#28a745':'#e74c3c')+';">'+bit+'</div></div>';}html+='</div>';}
+
+if(trickDecStep<trickDecPowers.length){
+// 첫 단계: 어디부터 시작할지 객관식
+if(trickDecStep===0){html+='<div style="background:#fff3cd;border-radius:12px;padding:15px;margin:15px 0;text-align:center;"><p style="font-weight:bold;color:#856404;margin-bottom:10px;">🤔 '+trickDecRemaining+'을 만들려면 어떤 자릿값부터 빼야 할까?</p><div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;">';
+// 정답 포함 3~4개 보기 생성
+var correctPower=trickDecPowers[0];var allPowers=[128,64,32,16,8,4,2,1];var options=[];options.push(correctPower);var ci=allPowers.indexOf(correctPower);if(ci>0)options.push(allPowers[ci-1]);if(ci>1)options.push(allPowers[ci-2]);if(ci<allPowers.length-1)options.push(allPowers[ci+1]);options.sort(function(a,b){return b-a;});
+for(var j=0;j<options.length;j++){html+='<button class="btn btn-sm '+(options[j]===correctPower?'btn-primary':'btn-primary')+'" onclick="checkTrickDecStart('+options[j]+','+correctPower+')" style="min-width:60px;">'+options[j]+'</button>';}
+html+='</div><div id="trickDecStartFeedback" style="margin-top:8px;font-weight:bold;"></div></div>';}
+else{
+// 이후 단계: 1/0 선택
+var p=trickDecPowers[trickDecStep];html+='<div style="background:#fff3cd;border-radius:12px;padding:15px;margin:15px 0;text-align:center;"><p style="font-weight:bold;color:#856404;margin-bottom:5px;">남은 수: <span style="font-size:1.3em;color:#667eea;">'+trickDecRemaining+'</span></p><p style="margin-bottom:10px;">자릿값 <strong>'+p+'</strong>을 뺄 수 있나요?</p><div style="display:flex;gap:10px;justify-content:center;"><button class="btn btn-sm btn-success" onclick="answerTrickDec(1)">1 (뺄 수 있다!) ⭕</button><button class="btn btn-sm btn-info" onclick="answerTrickDec(0)">0 (못 뺀다) ❌</button></div><div id="trickDecStepFeedback" style="margin-top:8px;font-weight:bold;"></div></div>';}
+}else{
+// 완료
+html+='<div class="final-answer-area" style="margin-top:15px;"><label>최종 이진수:</label><input type="text" id="trickDecFinalAnswer" placeholder="위 결과를 이어 쓰세요!"><button class="btn btn-warning btn-sm" style="margin-left:10px;" onclick="checkTrickDecFinal()">제출 ✅</button></div><div class="solution" id="trickDecSolution"></div>';}
+container.innerHTML=html;}
+
+function checkTrickDecStart(chosen,correct){var fb=document.getElementById('trickDecStartFeedback');if(chosen===correct){fb.innerHTML='<span style="color:#28a745;">✓ 맞아요! '+correct+'부터 시작!</span>';setTimeout(function(){showTrickDecBitStep();},500);}else{fb.innerHTML='<span style="color:#e74c3c;">💡 '+trickDecRemaining+'보다 크면 뺄 수 없어요! 뺄 수 있는 것 중 가장 큰 걸 골라보세요.</span>';}}
+
+function showTrickDecBitStep(){var p=trickDecPowers[trickDecStep];var correct=(trickDecRemaining>=p)?1:0;trickDecBits.push(correct);if(correct===1)trickDecRemaining-=p;trickDecStep++;showTrickDecStep();}
+
+function answerTrickDec(val){var p=trickDecPowers[trickDecStep];var correct=(trickDecRemaining>=p)?1:0;var fb=document.getElementById('trickDecStepFeedback');if(val===correct){trickDecBits.push(val);if(val===1)trickDecRemaining-=p;trickDecStep++;showTrickDecStep();}else{if(correct===1)fb.innerHTML='<span style="color:#e74c3c;">💡 '+trickDecRemaining+'과 '+p+'을 비교해보세요! 어느 쪽이 더 클까요?</span>';else fb.innerHTML='<span style="color:#e74c3c;">💡 '+trickDecRemaining+'과 '+p+'을 비교해보세요! 어느 쪽이 더 클까요?</span>';}}
+
+function checkTrickDecFinal(){var fi=document.getElementById('trickDecFinalAnswer');var ans=trickDecBits.join('');var sol=document.getElementById('trickDecSolution');if(fi.value.trim()===ans){fi.style.borderColor='#28a745';fi.style.background='#d4edda';var detail='';var rem=trickDecNum;for(var j=0;j<trickDecPowers.length;j++){var pp=trickDecPowers[j];if(rem>=pp){detail+=rem+' ≥ '+pp+' → 1, 남은값: '+(rem-pp)+'<br>';rem-=pp;}else{detail+=rem+' < '+pp+' → 0<br>';}}sol.innerHTML='<h3>🎉 완벽해요!</h3><div class="result-box" style="background:linear-gradient(135deg,#f093fb,#f5576c);">십진수 '+trickDecNum+' = 이진수 '+ans+'₍₂₎</div><div class="btn-group" style="margin-top:10px;"><button class="btn btn-sm btn-info" onclick="document.getElementById(\'trickDecDetail\').style.display=document.getElementById(\'trickDecDetail\').style.display===\'none\'?\'block\':\'none\'">풀이 보기 📝</button></div><div id="trickDecDetail" style="display:none;margin-top:10px;padding:15px;background:#f8f9ff;border-radius:10px;font-family:monospace;line-height:2;">'+detail+'</div>';}else{fi.style.borderColor='#e74c3c';fi.style.background='#f8d7da';sol.innerHTML='<h3>💡 힌트</h3><div class="step"><div class="step-number" style="background:#f5576c;">?</div><div class="step-content">위에서 선택한 1과 0을 순서대로 이어 쓰면 이진수가 돼요!</div></div>';}sol.classList.add('show');}
+// ===== 꿀팁: 이진수→십진수 =====
+var trickBinBits=[];
+function startTrickBinPractice(){var input=document.getElementById('trickBinInput').value.trim();if(!input||!/^[01]+$/.test(input)||input.length>8){alert('0과 1로만 이루어진 8자리 이하 이진수를 입력해주세요!');return;}trickBinBits=input.split('');var len=trickBinBits.length;var area=document.getElementById('trickBinArea');var html='<div class="trick-practice"><p style="font-weight:bold;color:#667eea;margin-bottom:8px;">STEP 1: 각 자리 아래에 자릿값을 써보세요! (오른쪽부터 1,2,4,8...)</p><div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-bottom:20px;">';for(var i=0;i<len;i++){html+='<div style="text-align:center;"><div style="background:'+(trickBinBits[i]==='1'?'#667eea':'#ccc')+';color:white;width:50px;height:50px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.8em;font-weight:bold;margin-bottom:6px;">'+trickBinBits[i]+'</div><input type="number" id="trickBin-pv-'+i+'" min="1" style="width:50px;padding:5px;border:2px solid #ddd;border-radius:8px;text-align:center;font-size:0.9em;font-weight:bold;" placeholder="?"></div>';}html+='</div>';html+='<p style="font-weight:bold;color:#11998e;margin-bottom:8px;">STEP 2: 1인 자리를 클릭하세요!</p><div id="trickBinCardRow" style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-bottom:15px;">';for(var i=0;i<len;i++){html+='<div id="trickBinCard-'+i+'" onclick="toggleTrickBinCard('+i+')" style="width:50px;height:50px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.5em;font-weight:bold;cursor:pointer;border:3px solid #ddd;background:#f5f5f5;color:#333;transition:all 0.2s;">'+trickBinBits[i]+'</div>';}html+='</div><div id="trickBinCalcDisplay" style="background:#e8f5e9;border-radius:12px;padding:15px;text-align:center;font-size:1.1em;min-height:50px;display:flex;align-items:center;justify-content:center;color:#555;">1인 자리를 클릭하면 자릿값이 여기에!</div>';html+='<p style="font-weight:bold;color:#2e7d32;margin:15px 0 8px;">STEP 3: 합계는?</p><div class="final-answer-area"><label>= </label><input type="number" id="trickBinFinalAnswer" placeholder="?"><button class="btn btn-success btn-sm" style="margin-left:10px;" onclick="checkTrickBinPractice()">제출 ✅</button></div><div class="solution" id="trickBinSolution"></div></div>';area.innerHTML=html;area.style.display='block';window.trickBinSelected=[];for(var i=0;i<len;i++)window.trickBinSelected.push(false);}
+function toggleTrickBinCard(i){var card=document.getElementById('trickBinCard-'+i);var len=trickBinBits.length;if(!window.trickBinSelected[i]){window.trickBinSelected[i]=true;card.style.background='#667eea';card.style.color='white';card.style.borderColor='#4a5acf';}else{window.trickBinSelected[i]=false;card.style.background='#f5f5f5';card.style.color='#333';card.style.borderColor='#ddd';}var vals=[];for(var j=0;j<len;j++){if(window.trickBinSelected[j]){var pv=parseInt(document.getElementById('trickBin-pv-'+j).value);vals.push(isNaN(pv)?'?':pv);}}var disp=document.getElementById('trickBinCalcDisplay');if(vals.length===0){disp.innerHTML='1인 자리를 클릭하면 자릿값이 여기에!';disp.style.color='#555';}else{var hasQ=vals.indexOf('?')>=0;if(hasQ)disp.innerHTML='<strong style="color:#f5576c;">'+vals.join(' + ')+' (자릿값을 먼저 써주세요!)</strong>';else disp.innerHTML='<strong style="color:#2e7d32;font-size:1.2em;">'+vals.join(' + ')+' = ?</strong>';}}
+function checkTrickBinPractice(){var len=trickBinBits.length;var total=0,usedPowers=[],allCorrect=true;for(var i=0;i<len;i++){var p=len-1-i;var cpv=Math.pow(2,p);var pvI=document.getElementById('trickBin-pv-'+i);if(parseInt(pvI.value)===cpv){pvI.style.borderColor='#28a745';pvI.style.background='#d4edda';}else{pvI.style.borderColor='#e74c3c';pvI.style.background='#f8d7da';allCorrect=false;}if(trickBinBits[i]==='1'){total+=cpv;usedPowers.push(cpv);}}for(var i=0;i<len;i++){var card=document.getElementById('trickBinCard-'+i);var should=(trickBinBits[i]==='1');if(window.trickBinSelected[i]!==should){allCorrect=false;card.style.background='#e74c3c';card.style.borderColor='#e74c3c';card.style.color='white';}else if(should){card.style.background='#28a745';card.style.borderColor='#28a745';}}var fi=document.getElementById('trickBinFinalAnswer');if(parseInt(fi.value)===total){fi.style.borderColor='#28a745';fi.style.background='#d4edda';}else{fi.style.borderColor='#e74c3c';fi.style.background='#f8d7da';allCorrect=false;}var sol=document.getElementById('trickBinSolution');if(allCorrect){var uPow=[];for(var j=0;j<len;j++){if(trickBinBits[j]==='1')uPow.push(Math.pow(2,len-1-j));}sol.innerHTML='<h3>🎉 완벽!</h3><div class="result-box" style="background:linear-gradient(135deg,#11998e,#38ef7d);">이진수 '+trickBinBits.join('')+'₍₂₎ = 십진수 '+total+'</div><div class="btn-group" style="margin-top:10px;"><button class="btn btn-sm btn-info" onclick="document.getElementById(\'trickBinDetail\').style.display=document.getElementById(\'trickBinDetail\').style.display===\'none\'?\'block\':\'none\'">풀이 보기 📝</button></div><div id="trickBinDetail" style="display:none;margin-top:10px;padding:15px;background:#f8f9ff;border-radius:10px;font-family:monospace;line-height:2;">1인 자리의 자릿값: '+uPow.join(' + ')+' = '+total+'</div>';}else{var pvWrong=false;for(var i=0;i<len;i++){if(parseInt(document.getElementById('trickBin-pv-'+i).value)!==Math.pow(2,len-1-i)){pvWrong=true;break;}}var html='<h3>💡 힌트</h3><div class="step"><div class="step-number" style="background:#667eea;">💡</div><div class="step-content">';if(pvWrong)html+='자릿값은 <strong>오른쪽부터 1, 2, 4, 8, 16...</strong> (2배씩!)';else html+='자릿값 OK! <strong>1인 자리만</strong> 클릭하고 그 값들을 더하세요!';html+='</div></div>';sol.innerHTML=html;}sol.classList.add('show');}
+// ===== 퀴즈 =====
+var currentQuizType='decToBin',currentQuiz=null,correctCount=0,totalCount=0;
+function setQuizType(t,btn){currentQuizType=t;document.querySelectorAll('.quiz-type-btn').forEach(function(b){b.classList.remove('active')});btn.classList.add('active');generateQuiz();}
+function generateQuiz(){var qa=document.getElementById('quizArea');var qq=document.getElementById('quizQuestion');var fb=document.getElementById('quizFeedback');var ai=document.getElementById('quizAnswer');qa.style.display='block';fb.style.display='none';ai.value='';var type=currentQuizType;if(type==='mixed'){var ts=['decToBin','binToDec','nbit','maxmin'];type=ts[Math.floor(Math.random()*ts.length)];}var q;if(type==='decToBin')q=makeDecToBinQ();else if(type==='binToDec')q=makeBinToDecQ();else if(type==='nbit')q=makeNbitQ();else q=makeMaxMinQ();currentQuiz={answer:q.answer};qq.innerHTML=q.question;ai.focus();}
+function makeDecToBinQ(){var d=Math.random();var n;if(d<0.4)n=Math.floor(Math.random()*15)+1;else if(d<0.7)n=Math.floor(Math.random()*48)+16;else n=Math.floor(Math.random()*200)+50;return{question:'십진수 <strong style="font-size:1.8em;color:#667eea;">'+n+'</strong>을(를) 이진수로 변환하면?',answer:n.toString(2)};}
+function makeBinToDecQ(){var n=Math.floor(Math.random()*127)+1;return{question:'이진수 <strong style="font-size:1.8em;color:#11998e;">'+n.toString(2)+'</strong>를 십진수로 변환하면?',answer:n.toString()};}
+function makeNbitQ(){var ts=[function(){var n=Math.floor(Math.random()*4)+3;var num=Math.floor(Math.random()*(Math.pow(2,n)-1))+1;return{question:'<strong>'+n+'비트</strong>로 십진수 <strong style="font-size:1.5em;color:#667eea;">'+num+'</strong>을(를) 표현하면?<br><small style="color:#888;">('+n+'자리로 입력!)</small>',answer:num.toString(2).padStart(n,'0')};},function(){var n=Math.floor(Math.random()*4)+3;return{question:'<strong>'+n+'비트</strong>로 십진수 <strong style="font-size:1.5em;color:#667eea;">1</strong>을 표현하면?<br><small style="color:#888;">('+n+'자리로!)</small>',answer:'0'.repeat(n-1)+'1'};},function(){var n=Math.floor(Math.random()*4)+2;return{question:n+'비트 이진수 <strong style="font-size:1.5em;color:#11998e;">'+'1'.repeat(n)+'</strong>을 십진수로 변환하면?',answer:(Math.pow(2,n)-1).toString()};}];return ts[Math.floor(Math.random()*ts.length)]();}
+function makeMaxMinQ(){var ts=[function(){var n=Math.floor(Math.random()*5)+2;return{question:'<strong>'+n+'비트</strong>로 표현할 수 있는 <strong style="color:#e74c3c;">가장 큰 수</strong>는?',answer:(Math.pow(2,n)-1).toString()};},function(){var n=Math.floor(Math.random()*4)+2;return{question:'<strong>'+n+'비트</strong>로 표현할 수 있는 수는 총 <strong style="color:#f5576c;">몇 개</strong>?<br><small style="color:#888;">(0부터)</small>',answer:Math.pow(2,n).toString()};},function(){var e=Math.floor(Math.random()*8);return{question:'2<sup><strong style="font-size:1.3em;color:#667eea;">'+e+'</strong></sup>의 값은?',answer:Math.pow(2,e).toString()};},function(){var num=Math.floor(Math.random()*60)+5;var bits=Math.ceil(Math.log2(num+1));return{question:'십진수 <strong style="font-size:1.5em;color:#667eea;">'+num+'</strong>을(를) 표현하려면 최소 <strong style="color:#f5576c;">몇 비트</strong>?',answer:bits.toString()};}];return ts[Math.floor(Math.random()*ts.length)]();}
+function checkQuizAnswer(){if(!currentQuiz)return;var ua=document.getElementById('quizAnswer').value.trim();var fb=document.getElementById('quizFeedback');if(!ua){fb.textContent='답을 입력해주세요!';fb.style.display='block';fb.style.background='#f8d7da';fb.style.color='#721c24';return;}totalCount++;var ok=(ua===currentQuiz.answer);if(!ok){var tu=ua.replace(/^0+/,'')||'0';var ta=currentQuiz.answer.replace(/^0+/,'')||'0';if(tu===ta&&currentQuiz.answer.length===ta.length)ok=true;}if(ok){correctCount++;fb.textContent='🎉 정답이에요!';fb.style.display='block';fb.style.background='#d4edda';fb.style.color='#155724';}else{fb.textContent='❌ 아쉬워요! 정답은 '+currentQuiz.answer;fb.style.display='block';fb.style.background='#f8d7da';fb.style.color='#721c24';}document.getElementById('correctCount').textContent=correctCount;document.getElementById('totalCount').textContent=totalCount;document.getElementById('accuracy').textContent=totalCount>0?Math.round((correctCount/totalCount)*100)+'%':'0%';setTimeout(function(){generateQuiz();},2200);}
+function resetScore(){correctCount=0;totalCount=0;document.getElementById('correctCount').textContent='0';document.getElementById('totalCount').textContent='0';document.getElementById('accuracy').textContent='0%';var fb=document.getElementById('quizFeedback');fb.style.display='none';}
+if(!String.prototype.padStart){String.prototype.padStart=function(len,str){str=str||'0';var s=this;while(s.length<len)s=str+s;return s;};}
+// ===== 심화: 8진수 =====
+function startBinToOctalPractice(){var input=document.getElementById('octalBinInput').value.trim();if(!input||!/^[01]+$/.test(input)||input.length>12){alert('0과 1로만 이루어진 12자리 이하 이진수를 입력해주세요!');return;}while(input.length%3!==0)input='0'+input;var groups=[];for(var i=0;i<input.length;i+=3)groups.push(input.substring(i,i+3));var area=document.getElementById('binToOctalArea');var html='<div class="trick-practice"><p style="font-weight:bold;color:#667eea;margin-bottom:15px;">3자리씩 묶었어요. 각 묶음의 8진수 값을 써보세요!</p><div style="display:flex;gap:15px;flex-wrap:wrap;justify-content:center;margin-bottom:20px;">';for(var i=0;i<groups.length;i++){html+='<div style="text-align:center;"><div style="background:#f0f4ff;border:2px solid #667eea;border-radius:10px;padding:10px 15px;font-family:monospace;font-size:1.3em;font-weight:bold;color:#667eea;margin-bottom:8px;">'+groups[i]+'</div><div style="font-size:0.8em;color:#888;margin-bottom:5px;">↓</div><input type="text" id="octal-group-'+i+'" maxlength="1" style="width:45px;padding:8px;border:2px solid #ddd;border-radius:8px;text-align:center;font-size:1.2em;font-weight:bold;"></div>';}html+='</div><div class="final-answer-area"><label>최종 8진수:</label><input type="text" id="binToOctalFinal" placeholder="예: 65"><button class="btn btn-warning btn-sm" style="margin-left:10px;" onclick="checkBinToOctalPractice()">제출 ✅</button></div><div class="solution" id="binToOctalSolution"></div></div>';area.innerHTML=html;area.style.display='block';area.dataset.groups=JSON.stringify(groups);}
+function checkBinToOctalPractice(){var groups=JSON.parse(document.getElementById('binToOctalArea').dataset.groups);var map={'000':'0','001':'1','010':'2','011':'3','100':'4','101':'5','110':'6','111':'7'};var allCorrect=true,correctOctal='';for(var i=0;i<groups.length;i++){var c=map[groups[i]];correctOctal+=c;var inp=document.getElementById('octal-group-'+i);if(inp.value.trim()===c){inp.style.borderColor='#28a745';inp.style.background='#d4edda';}else{inp.style.borderColor='#e74c3c';inp.style.background='#f8d7da';allCorrect=false;}}var fi=document.getElementById('binToOctalFinal');if(fi.value.trim()===correctOctal){fi.style.borderColor='#28a745';fi.style.background='#d4edda';}else{fi.style.borderColor='#e74c3c';fi.style.background='#f8d7da';allCorrect=false;}var sol=document.getElementById('binToOctalSolution');if(allCorrect){var detail=groups.map(function(g){return g+' → '+map[g]}).join('<br>');sol.innerHTML='<h3>🎉 완벽해요!</h3><div class="result-box">이진수 '+groups.join(' ')+'₍₂₎ = 8진수 '+correctOctal+'₍₈₎</div><div class="btn-group" style="margin-top:10px;"><button class="btn btn-sm btn-info" onclick="document.getElementById(\'octalDetail\').style.display=document.getElementById(\'octalDetail\').style.display===\'none\'?\'block\':\'none\'">풀이 보기 📝</button></div><div id="octalDetail" style="display:none;margin-top:10px;padding:15px;background:#f8f9ff;border-radius:10px;font-family:monospace;line-height:2;">3자리씩 묶기:<br>'+detail+'</div>';}else{sol.innerHTML='<h3>💡 힌트</h3><div class="step"><div class="step-number" style="background:#667eea;">💡</div><div class="step-content">3자리 이진수를 8진수로: 000=0, 001=1, 010=2, 011=3, 100=4, 101=5, 110=6, 111=7<br>각 묶음을 위 표에서 찾아보세요!</div></div>';}sol.classList.add('show');}
+// ===== 심화: 8진수→이진수 =====
+function startOctalToBinPractice(){var input=document.getElementById('octalInput').value.trim();if(!input||!/^[0-7]+$/.test(input)||input.length>4){alert('0~7로 이루어진 4자리 이하 8진수를 입력해주세요!');return;}var digits=input.split('');var area=document.getElementById('octalToBinArea');var html='<div class="trick-practice"><p style="font-weight:bold;color:#11998e;margin-bottom:15px;">각 8진수 자리를 3자리 이진수로 변환해보세요!</p><div style="display:flex;gap:15px;flex-wrap:wrap;justify-content:center;margin-bottom:20px;">';for(var i=0;i<digits.length;i++){html+='<div style="text-align:center;"><div style="background:#11998e;color:white;width:50px;height:50px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.5em;font-weight:bold;margin-bottom:8px;">'+digits[i]+'</div><div style="font-size:0.8em;color:#888;margin-bottom:5px;">↓</div><input type="text" id="octal-to-bin-'+i+'" maxlength="3" placeholder="000" style="width:55px;padding:8px;border:2px solid #ddd;border-radius:8px;text-align:center;font-size:1em;font-weight:bold;"></div>';}html+='</div><div class="final-answer-area"><label>최종 이진수:</label><input type="text" id="octalToBinFinal" placeholder="예: 110101"><button class="btn btn-success btn-sm" style="margin-left:10px;" onclick="checkOctalToBinPractice()">제출 ✅</button></div><div class="solution" id="octalToBinSolution"></div></div>';area.innerHTML=html;area.style.display='block';area.dataset.digits=JSON.stringify(digits);}
+function checkOctalToBinPractice(){var digits=JSON.parse(document.getElementById('octalToBinArea').dataset.digits);var map={'0':'000','1':'001','2':'010','3':'011','4':'100','5':'101','6':'110','7':'111'};var allCorrect=true,correctBin='';for(var i=0;i<digits.length;i++){var c=map[digits[i]];correctBin+=c;var inp=document.getElementById('octal-to-bin-'+i);if(inp.value.trim()===c){inp.style.borderColor='#28a745';inp.style.background='#d4edda';}else{inp.style.borderColor='#e74c3c';inp.style.background='#f8d7da';allCorrect=false;}}var fi=document.getElementById('octalToBinFinal');var uf=fi.value.trim();var tc=correctBin.replace(/^0+/,'')||'0';if(uf===correctBin||uf===tc){fi.style.borderColor='#28a745';fi.style.background='#d4edda';}else{fi.style.borderColor='#e74c3c';fi.style.background='#f8d7da';allCorrect=false;}var sol=document.getElementById('octalToBinSolution');if(allCorrect){var detail=digits.map(function(d){return d+' → '+map[d]}).join('<br>');sol.innerHTML='<h3>🎉 완벽해요!</h3><div class="result-box">8진수 '+digits.join('')+'₍₈₎ = 이진수 '+correctBin+'₍₂₎</div><div class="btn-group" style="margin-top:10px;"><button class="btn btn-sm btn-info" onclick="document.getElementById(\'octalBinDetail\').style.display=document.getElementById(\'octalBinDetail\').style.display===\'none\'?\'block\':\'none\'">풀이 보기 📝</button></div><div id="octalBinDetail" style="display:none;margin-top:10px;padding:15px;background:#f8f9ff;border-radius:10px;font-family:monospace;line-height:2;">각 자리를 3비트로:<br>'+detail+'</div>';}else{sol.innerHTML='<h3>💡 힌트</h3><div class="step"><div class="step-number" style="background:#11998e;">💡</div><div class="step-content">8진수 한 자리 = 3자리 이진수!<br>0=000, 1=001, 2=010, 3=011, 4=100, 5=101, 6=110, 7=111<br>위의 대응표를 참고해보세요!</div></div>';}sol.classList.add('show');}
+
+// ===== 심화: 16진수 =====
+function startBinToHexPractice(){var input=document.getElementById('hexBinInput').value.trim();if(!input||!/^[01]+$/.test(input)||input.length>16){alert('0과 1로만 이루어진 16자리 이하 이진수를 입력해주세요!');return;}while(input.length%4!==0)input='0'+input;var groups=[];for(var i=0;i<input.length;i+=4)groups.push(input.substring(i,i+4));var area=document.getElementById('binToHexArea');var html='<div class="trick-practice"><p style="font-weight:bold;color:#667eea;margin-bottom:15px;">4자리씩 묶었어요. 각 묶음의 16진수 값을 써보세요!</p><div style="display:flex;gap:15px;flex-wrap:wrap;justify-content:center;margin-bottom:20px;">';for(var i=0;i<groups.length;i++){html+='<div style="text-align:center;"><div style="background:#f0f4ff;border:2px solid #667eea;border-radius:10px;padding:10px 15px;font-family:monospace;font-size:1.3em;font-weight:bold;color:#667eea;margin-bottom:8px;">'+groups[i]+'</div><div style="font-size:0.8em;color:#888;margin-bottom:5px;">↓</div><input type="text" id="hex-group-'+i+'" maxlength="1" style="width:45px;padding:8px;border:2px solid #ddd;border-radius:8px;text-align:center;font-size:1.2em;font-weight:bold;text-transform:uppercase;"></div>';}html+='</div><div class="final-answer-area"><label>최종 16진수:</label><input type="text" id="binToHexFinal" placeholder="예: 9B" style="text-transform:uppercase;"><button class="btn btn-warning btn-sm" style="margin-left:10px;" onclick="checkBinToHexPractice()">제출 ✅</button></div><div class="solution" id="binToHexSolution"></div></div>';area.innerHTML=html;area.style.display='block';area.dataset.groups=JSON.stringify(groups);}
+function checkBinToHexPractice(){var groups=JSON.parse(document.getElementById('binToHexArea').dataset.groups);var map={'0000':'0','0001':'1','0010':'2','0011':'3','0100':'4','0101':'5','0110':'6','0111':'7','1000':'8','1001':'9','1010':'A','1011':'B','1100':'C','1101':'D','1110':'E','1111':'F'};var allCorrect=true,correctHex='';for(var i=0;i<groups.length;i++){var c=map[groups[i]];correctHex+=c;var inp=document.getElementById('hex-group-'+i);if(inp.value.trim().toUpperCase()===c){inp.style.borderColor='#28a745';inp.style.background='#d4edda';}else{inp.style.borderColor='#e74c3c';inp.style.background='#f8d7da';allCorrect=false;}}var fi=document.getElementById('binToHexFinal');if(fi.value.trim().toUpperCase()===correctHex){fi.style.borderColor='#28a745';fi.style.background='#d4edda';}else{fi.style.borderColor='#e74c3c';fi.style.background='#f8d7da';allCorrect=false;}var sol=document.getElementById('binToHexSolution');if(allCorrect){var detail=groups.map(function(g){return g+' → '+map[g]}).join('<br>');sol.innerHTML='<h3>🎉 완벽해요!</h3><div class="result-box">이진수 '+groups.join(' ')+'₍₂₎ = 16진수 '+correctHex+'₍₁₆₎</div><div class="btn-group" style="margin-top:10px;"><button class="btn btn-sm btn-info" onclick="document.getElementById(\'hexDetail\').style.display=document.getElementById(\'hexDetail\').style.display===\'none\'?\'block\':\'none\'">풀이 보기 📝</button></div><div id="hexDetail" style="display:none;margin-top:10px;padding:15px;background:#f8f9ff;border-radius:10px;font-family:monospace;line-height:2;">4자리씩 묶기:<br>'+detail+'</div>';}else{sol.innerHTML='<h3>💡 힌트</h3><div class="step"><div class="step-number" style="background:#667eea;">💡</div><div class="step-content">0000~1001은 0~9 그대로!<br>1010=A, 1011=B, 1100=C, 1101=D, 1110=E, 1111=F<br>위의 대응표를 참고해보세요!</div></div>';}sol.classList.add('show');}
+function startHexToBinPractice(){var input=document.getElementById('hexInput').value.trim().toUpperCase();if(!input||!/^[0-9A-F]+$/.test(input)||input.length>4){alert('0~9, A~F로 이루어진 4자리 이하 16진수를 입력해주세요!');return;}var digits=input.split('');var area=document.getElementById('hexToBinArea');var html='<div class="trick-practice"><p style="font-weight:bold;color:#11998e;margin-bottom:15px;">각 16진수 자리를 4자리 이진수로 변환해보세요!</p><div style="display:flex;gap:15px;flex-wrap:wrap;justify-content:center;margin-bottom:20px;">';for(var i=0;i<digits.length;i++){html+='<div style="text-align:center;"><div style="background:#11998e;color:white;width:50px;height:50px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.5em;font-weight:bold;margin-bottom:8px;">'+digits[i]+'</div><div style="font-size:0.8em;color:#888;margin-bottom:5px;">↓</div><input type="text" id="hex-to-bin-'+i+'" maxlength="4" placeholder="0000" style="width:65px;padding:8px;border:2px solid #ddd;border-radius:8px;text-align:center;font-size:1em;font-weight:bold;"></div>';}html+='</div><div class="final-answer-area"><label>최종 이진수:</label><input type="text" id="hexToBinFinal" placeholder="예: 001111001010"><button class="btn btn-success btn-sm" style="margin-left:10px;" onclick="checkHexToBinPractice()">제출 ✅</button></div><div class="solution" id="hexToBinSolution"></div></div>';area.innerHTML=html;area.style.display='block';area.dataset.digits=JSON.stringify(digits);}
+function checkHexToBinPractice(){var digits=JSON.parse(document.getElementById('hexToBinArea').dataset.digits);var map={'0':'0000','1':'0001','2':'0010','3':'0011','4':'0100','5':'0101','6':'0110','7':'0111','8':'1000','9':'1001','A':'1010','B':'1011','C':'1100','D':'1101','E':'1110','F':'1111'};var allCorrect=true,correctBin='';for(var i=0;i<digits.length;i++){var c=map[digits[i]];correctBin+=c;var inp=document.getElementById('hex-to-bin-'+i);if(inp.value.trim()===c){inp.style.borderColor='#28a745';inp.style.background='#d4edda';}else{inp.style.borderColor='#e74c3c';inp.style.background='#f8d7da';allCorrect=false;}}var fi=document.getElementById('hexToBinFinal');var uf=fi.value.trim();var tc=correctBin.replace(/^0+/,'')||'0';if(uf===correctBin||uf===tc){fi.style.borderColor='#28a745';fi.style.background='#d4edda';}else{fi.style.borderColor='#e74c3c';fi.style.background='#f8d7da';allCorrect=false;}var sol=document.getElementById('hexToBinSolution');if(allCorrect){var detail=digits.map(function(d){return d+' → '+map[d]}).join('<br>');sol.innerHTML='<h3>🎉 완벽해요!</h3><div class="result-box" style="background:linear-gradient(135deg,#11998e,#38ef7d);">16진수 '+digits.join('')+'₍₁₆₎ = 이진수 '+correctBin+'₍₂₎</div><div class="btn-group" style="margin-top:10px;"><button class="btn btn-sm btn-info" onclick="document.getElementById(\'hexBinDetail\').style.display=document.getElementById(\'hexBinDetail\').style.display===\'none\'?\'block\':\'none\'">풀이 보기 📝</button></div><div id="hexBinDetail" style="display:none;margin-top:10px;padding:15px;background:#f8f9ff;border-radius:10px;font-family:monospace;line-height:2;">각 자리를 4비트로:<br>'+detail+'</div>';}else{sol.innerHTML='<h3>💡 힌트</h3><div class="step"><div class="step-number" style="background:#11998e;">💡</div><div class="step-content">16진수 한 자리 = 4자리 이진수!<br>0~9는 그 숫자를 4자리로 (예: 3→0011)<br>A=1010, B=1011, C=1100, D=1101, E=1110, F=1111</div></div>';}sol.classList.add('show');}
+
+// 초기화
+window.onload=function(){initGame();showMagicCard();};
+
+// 풀이 보기 토글
+function showSolutionDetail(id){var el=document.getElementById(id);el.style.display=el.style.display==='none'?'block':'none';}
+</script>
+</body>
+</html>
